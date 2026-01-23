@@ -1,0 +1,4046 @@
+<!doctype html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>AI QC Dashboard - Complete Application</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#8b5cf6",
+              secondary: "#06b6d4",
+              "background-light": "#FFFFFF",
+              "background-dark": "#0a0f1c",
+              "surface-light": "#f4f4ff",
+              "surface-dark": "#111827",
+              "border-subtle": "rgba(139, 92, 246, 0.2)",
+              "lead-hot": "#ef4444",
+              "lead-warm": "#f59e0b",
+              "lead-cold": "#3b82f6",
+              "navy-text": "#0f172a",
+            },
+            fontFamily: {
+              display: ["Plus Jakarta Sans", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              "2xl": "1rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          font-family: "Plus Jakarta Sans", sans-serif;
+        }
+      }
+      .dark .glass-sidebar {
+        background: rgba(16, 20, 32, 0.8);
+        backdrop-filter: blur(12px);
+        border-right: 1px solid rgba(139, 92, 246, 0.1);
+      }
+      .dark .glow-card {
+        background: #111827;
+        border: 1px solid rgba(139, 92, 246, 0.1);
+      }
+      .light .glass-sidebar {
+        background: #fdfdff;
+        border-right: 1px solid rgba(139, 92, 246, 0.1);
+      }
+      .light .glow-card {
+        background: #f4f4ff;
+        border: 1px solid rgba(139, 92, 246, 0.08);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+      }
+      .light .bg-background-dark {
+        background-color: #ffffff;
+      }
+      .light .text-slate-100,
+      .light .text-white {
+        color: #0f172a;
+      }
+      .light .text-slate-200,
+      .light .text-slate-300,
+      .light .text-slate-400 {
+        color: #475569;
+      }
+      .glow-card {
+        transition: all 0.3s ease;
+      }
+      .dark .glow-card:hover {
+        border-color: rgba(139, 92, 246, 0.4);
+        box-shadow: 0 0 25px rgba(139, 92, 246, 0.1);
+      }
+      .light .glow-card:hover {
+        border-color: rgba(139, 92, 246, 0.3);
+        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.05);
+      }
+      .hot-glow {
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .warm-glow {
+        border: 1px solid rgba(245, 158, 11, 0.2);
+      }
+      .cold-glow {
+        border: 1px solid rgba(59, 130, 246, 0.2);
+      }
+      .radial-gauge {
+        background: conic-gradient(
+          from 180deg at 50% 50%,
+          #8b5cf6 0deg,
+          #06b6d4 280deg,
+          #e2e8f0 280deg
+        );
+      }
+      .dark .radial-gauge {
+        background: conic-gradient(
+          from 180deg at 50% 50%,
+          #8b5cf6 0deg,
+          #06b6d4 280deg,
+          #1f2937 280deg
+        );
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #374151;
+      }
+      .progress-ring-circle {
+        transition: stroke-dashoffset 0.35s;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+      }
+      .upload-zone {
+        border: 2px dashed rgba(139, 92, 246, 0.2);
+        transition: all 0.3s ease;
+      }
+      .upload-zone.active {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.05);
+      }
+      .file-item {
+        animation: fadeIn 0.3s ease-in;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .dark .upload-zone {
+        border-color: rgba(139, 92, 246, 0.3);
+      }
+      .light .upload-zone {
+        border-color: rgba(139, 92, 246, 0.2);
+      }
+      .glass-popup {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+      .dark .glass-popup {
+        background: rgba(17, 24, 39, 0.8);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+      }
+      .waveform-bar {
+        width: 4px;
+        background: rgba(139, 92, 246, 0.4);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+      }
+      .waveform-bar.active {
+        background: #8b5cf6;
+      }
+      .popup-backdrop {
+        background: rgba(10, 15, 28, 0.7);
+        backdrop-filter: blur(2px);
+      }
+      .light .popup-backdrop {
+        background: rgba(255, 255, 255, 0.7);
+      }
+      .chat-message.user {
+        background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+        color: white;
+        border-radius: 1rem 1rem 0.25rem 1rem;
+      }
+      .chat-message.agent {
+        background: #f1f5f9;
+        color: #0f172a;
+        border-radius: 1rem 1rem 1rem 0.25rem;
+      }
+      .dark .chat-message.agent {
+        background: #1e293b;
+        color: #e2e8f0;
+      }
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+        animation: fadeInPage 0.3s ease-out;
+      }
+      @keyframes fadeInPage {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      /* New styles for agent evaluation popup */
+      .agent-popup {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 50;
+        pointer-events: none;
+      }
+      .agent-popup.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .parameter-row {
+        transition: background-color 0.2s ease;
+      }
+      .parameter-row:hover {
+        background-color: rgba(139, 92, 246, 0.05);
+      }
+      .parameter-score {
+        font-variant-numeric: tabular-nums;
+      }
+      .pass-badge {
+        background-color: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+      .fail-badge {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      /* Score clickable style */
+      .score-clickable {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .score-clickable:hover {
+        transform: scale(1.05);
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background-dark dark:text-slate-100 text-navy-text min-h-screen flex overflow-hidden"
+  >
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 glass-sidebar h-screen flex flex-col shrink-0 z-50">
+      <div class="p-6">
+        <div class="flex items-center gap-3 mb-10">
+          <div
+            class="size-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-lg shadow-primary/20"
+          >
+            <span class="material-symbols-outlined text-2xl font-bold"
+              >auto_awesome</span
+            >
+          </div>
+          <div class="flex flex-col">
+            <h1
+              class="dark:text-white text-navy-text text-lg font-bold leading-none tracking-tight"
+            >
+              AI Based QC
+            </h1>
+            <p
+              class="text-slate-500 text-[10px] uppercase tracking-widest mt-1"
+            >
+              Enterprise Analytics
+            </p>
+          </div>
+        </div>
+        <nav class="space-y-2">
+          <button
+            id="nav-dashboard"
+            class="nav-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary border border-primary/20 w-full text-left"
+            data-page="dashboard"
+          >
+            <span class="material-symbols-outlined text-[22px]">dashboard</span>
+            <span class="text-sm font-semibold">Dashboard</span>
+          </button>
+          <button
+            id="nav-upload"
+            class="nav-btn flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-navy-text dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all w-full text-left"
+            data-page="upload"
+          >
+            <span class="material-symbols-outlined text-[22px]">upload</span>
+            <span class="text-sm font-medium">File Upload</span>
+          </button>
+          <button
+            id="nav-reports"
+            class="nav-btn flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-navy-text dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all w-full text-left"
+            data-page="reports"
+          >
+            <span class="material-symbols-outlined text-[22px]">analytics</span>
+            <span class="text-sm font-medium">Reports</span>
+          </button>
+          <button
+            id="nav-settings"
+            class="nav-btn flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-navy-text dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all w-full text-left"
+            data-page="settings"
+          >
+            <span class="material-symbols-outlined text-[22px]">settings</span>
+            <span class="text-sm font-medium">Settings</span>
+          </button>
+        </nav>
+      </div>
+      <div class="mt-auto p-6 space-y-4">
+        <div
+          class="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20"
+        >
+          <p class="text-xs font-semibold text-primary mb-1">AI Accuracy</p>
+          <div class="flex items-end gap-2">
+            <span
+              class="text-xl font-bold dark:text-white text-navy-text leading-none"
+              >99.4%</span
+            >
+            <span class="text-[10px] text-secondary font-bold">+0.2%</span>
+          </div>
+          <div
+            class="w-full bg-slate-200 dark:bg-white/5 h-1.5 rounded-full mt-3 overflow-hidden"
+          >
+            <div class="bg-primary h-full w-[94%]"></div>
+          </div>
+        </div>
+        <button
+          id="sidebar-upload-btn"
+          class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-primary/20 no-underline"
+        >
+          <span class="material-symbols-outlined text-lg">cloud_upload</span>
+          Upload Audio
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main
+      class="flex-1 h-screen overflow-y-auto custom-scrollbar flex flex-col bg-background-dark"
+    >
+      <!-- Header -->
+      <header
+        class="sticky top-0 z-40 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 px-8 py-4 flex items-center justify-between"
+      >
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-slate-500 text-xs font-medium">Analytics</span>
+            <span class="material-symbols-outlined text-xs text-slate-400"
+              >chevron_right</span
+            >
+            <span
+              class="text-slate-600 dark:text-slate-200 text-xs font-medium"
+              id="page-breadcrumb"
+              >Performance Dashboard</span
+            >
+          </div>
+          <h2
+            class="text-navy-text dark:text-white text-xl font-bold"
+            id="page-title"
+          >
+            Performance Dashboard
+          </h2>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="relative group">
+            <span
+              class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"
+              >search</span
+            >
+            <input
+              class="bg-slate-100 dark:bg-white/5 border-transparent dark:border-white/10 text-navy-text dark:text-white text-sm rounded-lg pl-10 pr-4 py-2 w-64 focus:ring-primary focus:border-primary placeholder:text-slate-400"
+              placeholder="Search..."
+              type="text"
+              id="search-input"
+            />
+          </div>
+          <button
+            id="themeToggleBtn"
+            class="size-10 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-primary transition-all relative group shadow-sm"
+          >
+            <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+            <span class="material-symbols-outlined hidden dark:block"
+              >light_mode</span
+            >
+          </button>
+          <div
+            class="flex items-center gap-2 border-l border-slate-200 dark:border-white/10 pl-4"
+          >
+            <button
+              class="size-10 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-navy-text dark:hover:text-white transition-colors relative"
+            >
+              <span class="material-symbols-outlined">notifications</span>
+              <span
+                class="absolute top-2.5 right-2.5 size-2 bg-primary rounded-full ring-2 ring-white dark:ring-background-dark"
+              ></span>
+            </button>
+            <div
+              class="size-10 rounded-lg overflow-hidden border-2 border-primary/20 cursor-pointer"
+            >
+              <img
+                alt="User Profile"
+                class="w-full h-full object-cover"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgWsV3ztFdyIN6yoTf19TMrfOUnKQO-PLrWmPWFPOeNfqpOIRiuiHNfAX9cSk83Cug8yD0eMr5N19caVXEjMGKMOA_fNaS_HQw59ofbd9OOIEGX0prCBRiRg2Gb5n3vzGAqRSkc09WpSaxNlaCF5-XNRmY4GGk-31G8OxSwB9d1ptkcHfqzDdyAZHQ7KAkfs6pX6JQbhzP_Uqy2oii2lXMu-0VtWLwelqdw8WYwVV_DBOMUPTw9-fOQYi2_Iz9voMt8K4nZiHNe1I"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Page -->
+      <div id="page-dashboard" class="page active">
+        <div class="p-8 space-y-8">
+          <section>
+            <div class="flex items-center justify-between mb-4">
+              <h3
+                class="dark:text-white text-navy-text font-bold text-base flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-primary text-xl"
+                  >fact_check</span
+                >
+                Disposition Quality Check
+              </h3>
+              <span
+                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+                >Last 24 Hours</span
+              >
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="glow-card glow-success p-6 rounded-3xl">
+                <div class="flex justify-between items-start mb-4">
+                  <div
+                    class="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-500"
+                  >
+                    <span class="material-symbols-outlined">verified</span>
+                  </div>
+                  <div
+                    class="flex items-center gap-1 text-emerald-500 text-xs font-bold"
+                  >
+                    <span class="material-symbols-outlined text-sm"
+                      >trending_up</span
+                    >
+                    +12.4%
+                  </div>
+                </div>
+                <div>
+                  <p class="text-slate-500 text-sm font-semibold mb-1">
+                    System vs User Same
+                  </p>
+                  <h4
+                    class="text-3xl font-extrabold dark:text-white text-navy-text tracking-tight"
+                  >
+                    8,942
+                  </h4>
+                  <div class="mt-4 flex items-center gap-2">
+                    <div
+                      class="flex-1 h-1 bg-slate-100 dark:bg-white/10 rounded-full"
+                    >
+                      <div
+                        class="bg-emerald-500 h-full w-[84%] rounded-full"
+                      ></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase"
+                      >84% Match</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="glow-card glow-warning p-6 rounded-3xl">
+                <div class="flex justify-between items-start mb-4">
+                  <div class="p-2.5 rounded-2xl bg-amber-500/10 text-amber-500">
+                    <span class="material-symbols-outlined">rule</span>
+                  </div>
+                  <div
+                    class="flex items-center gap-1 text-amber-500 text-xs font-bold"
+                  >
+                    <span class="material-symbols-outlined text-sm"
+                      >trending_flat</span
+                    >
+                    +2.1%
+                  </div>
+                </div>
+                <div>
+                  <p class="text-slate-500 text-sm font-semibold mb-1">
+                    System vs User Different
+                  </p>
+                  <h4
+                    class="text-3xl font-extrabold dark:text-white text-navy-text tracking-tight"
+                  >
+                    1,208
+                  </h4>
+                  <div class="mt-4 flex items-center gap-2">
+                    <div
+                      class="flex-1 h-1 bg-slate-100 dark:bg-white/10 rounded-full"
+                    >
+                      <div
+                        class="bg-amber-500 h-full w-[11%] rounded-full"
+                      ></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase"
+                      >11% Variance</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="glow-card glow-danger p-6 rounded-3xl">
+                <div class="flex justify-between items-start mb-4">
+                  <div class="p-2.5 rounded-2xl bg-rose-500/10 text-rose-500">
+                    <span class="material-symbols-outlined">error_outline</span>
+                  </div>
+                  <div
+                    class="flex items-center gap-1 text-rose-500 text-xs font-bold"
+                  >
+                    <span class="material-symbols-outlined text-sm"
+                      >trending_down</span
+                    >
+                    -5.2%
+                  </div>
+                </div>
+                <div>
+                  <p class="text-slate-500 text-sm font-semibold mb-1">
+                    System Not Captured
+                  </p>
+                  <h4
+                    class="text-3xl font-extrabold dark:text-white text-navy-text tracking-tight"
+                  >
+                    542
+                  </h4>
+                  <div class="mt-4 flex items-center gap-2">
+                    <div
+                      class="flex-1 h-1 bg-slate-100 dark:bg-white/10 rounded-full"
+                    >
+                      <div class="bg-rose-500 h-full w-[5%] rounded-full"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase"
+                      >5% Missed</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="flex items-center justify-between mb-4">
+              <h3
+                class="dark:text-white text-navy-text font-bold text-base flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-primary text-xl"
+                  >bolt</span
+                >
+                Agent Efficiency Distribution
+              </h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+              <!-- Green Agents Card -->
+              <div
+                class="glow-card p-6 rounded-3xl flex items-center gap-6 cursor-pointer hover:bg-primary/5 transition-all relative"
+                id="green-agents-card"
+              >
+                <div class="relative size-20 shrink-0">
+                  <svg class="size-full" viewBox="0 0 36 36">
+                    <circle
+                      class="stroke-slate-100 dark:stroke-white/5"
+                      cx="18"
+                      cy="18"
+                      fill="none"
+                      r="16"
+                      stroke-width="3.5"
+                    ></circle>
+                    <circle
+                      class="stroke-emerald-500 progress-ring-circle"
+                      cx="18"
+                      cy="18"
+                      fill="none"
+                      r="16"
+                      stroke-dasharray="100"
+                      stroke-dashoffset="30"
+                      stroke-linecap="round"
+                      stroke-width="3.5"
+                    ></circle>
+                  </svg>
+                  <div
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <span
+                      class="text-xs font-bold dark:text-white text-navy-text"
+                      >70%</span
+                    >
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <p
+                    class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1"
+                  >
+                    Agents in Green
+                  </p>
+                  <h5
+                    class="text-2xl font-black dark:text-white text-navy-text"
+                  >
+                    {{green}}
+                  </h5>
+                  <p class="text-[10px] text-emerald-500 font-bold mt-1">
+                    Score >= 7
+                  </p>
+                </div>
+                <span
+                  class="material-symbols-outlined text-emerald-500 absolute right-4 top-4"
+                >
+                  info
+                </span>
+              </div>
+
+              <!-- Yellow Agents Card -->
+              <div
+                class="glow-card p-6 rounded-3xl flex items-center gap-6 cursor-pointer hover:bg-primary/5 transition-all relative"
+                id="yellow-agents-card"
+              >
+                <div class="relative size-20 shrink-0">
+                  <svg class="size-full" viewBox="0 0 36 36">
+                    <circle
+                      class="stroke-slate-100 dark:stroke-white/5"
+                      cx="18"
+                      cy="18"
+                      fill="none"
+                      r="16"
+                      stroke-width="3.5"
+                    ></circle>
+                    <circle
+                      class="stroke-amber-500 progress-ring-circle"
+                      cx="18"
+                      cy="18"
+                      fill="none"
+                      r="16"
+                      stroke-dasharray="100"
+                      stroke-dashoffset="75"
+                      stroke-linecap="round"
+                      stroke-width="3.5"
+                    ></circle>
+                  </svg>
+                  <div
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <span
+                      class="text-xs font-bold dark:text-white text-navy-text"
+                      >25%</span
+                    >
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <p
+                    class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1"
+                  >
+                    Agents in Yellow
+                  </p>
+                  <h5
+                    class="text-2xl font-black dark:text-white text-navy-text"
+                  >
+                    {{yellow}}
+                  </h5>
+                  <p class="text-[10px] text-amber-500 font-bold mt-1">
+                    Score 3 - 7
+                  </p>
+                </div>
+                <span
+                  class="material-symbols-outlined text-amber-500 absolute right-4 top-4"
+                >
+                  info
+                </span>
+              </div>
+
+              <!-- Red Agents Card -->
+              <div
+                class="glow-card p-6 rounded-3xl flex items-center gap-6 cursor-pointer hover:bg-primary/5 transition-all relative"
+                id="red-agents-card"
+              >
+                <div class="relative size-20 shrink-0">
+                  <svg class="size-full" viewBox="0 0 36 36">
+                    <circle
+                      class="stroke-slate-100 dark:stroke-white/5"
+                      cx="18"
+                      cy="18"
+                      fill="none"
+                      r="16"
+                      stroke-width="3.5"
+                    ></circle>
+                    <circle
+                      class="stroke-rose-500 progress-ring-circle"
+                      cx="18"
+                      cy="18"
+                      fill="none"
+                      r="16"
+                      stroke-dasharray="100"
+                      stroke-dashoffset="95"
+                      stroke-linecap="round"
+                      stroke-width="3.5"
+                    ></circle>
+                  </svg>
+                  <div
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <span
+                      class="text-xs font-bold dark:text-white text-navy-text"
+                      >5%</span
+                    >
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <p
+                    class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1"
+                  >
+                    Agents in Red
+                  </p>
+                  <h5
+                    class="text-2xl font-black dark:text-white text-navy-text"
+                  >
+                    {{red}}
+                  </h5>
+                  <p class="text-[10px] text-rose-500 font-bold mt-1">
+                    Score < 3
+                  </p>
+                </div>
+                <span
+                  class="material-symbols-outlined text-rose-500 absolute right-4 top-4"
+                >
+                  info
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div
+              class="glow-card p-8 rounded-2xl flex flex-col items-center justify-center min-h-[400px]"
+            >
+              <h4
+                class="dark:text-white text-navy-text font-bold text-lg mb-8 self-start"
+              >
+                Quality Index
+              </h4>
+              <div class="relative size-64 flex items-center justify-center">
+                <div
+                  class="absolute inset-0 rounded-full border-[12px] dark:border-white/5 border-slate-100"
+                ></div>
+                <div
+                  class="absolute inset-0 rounded-full radial-gauge"
+                  style="
+                    mask-image: radial-gradient(
+                      circle,
+                      transparent 58%,
+                      black 60%
+                    );
+                    -webkit-mask-image: radial-gradient(
+                      circle,
+                      transparent 58%,
+                      black 60%
+                    );
+                  "
+                ></div>
+                <div class="text-center z-10">
+                  <span
+                    class="text-6xl font-black dark:text-white text-navy-text block"
+                    >92</span
+                  >
+                  <span
+                    class="text-slate-400 text-sm font-bold uppercase tracking-widest"
+                    >Exceptional</span
+                  >
+                </div>
+              </div>
+              <div class="mt-8 grid grid-cols-2 gap-8 w-full">
+                <div
+                  class="text-center border-r dark:border-white/5 border-slate-200"
+                >
+                  <p class="text-slate-500 text-[10px] font-bold uppercase">
+                    Compliance
+                  </p>
+                  <p class="dark:text-white text-navy-text text-lg font-bold">
+                    98.2%
+                  </p>
+                </div>
+                <div class="text-center">
+                  <p class="text-slate-500 text-[10px] font-bold uppercase">
+                    Resolution
+                  </p>
+                  <p class="dark:text-white text-navy-text text-lg font-bold">
+                    84.5%
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              class="glow-card p-8 rounded-2xl lg:col-span-2 min-h-[400px] flex flex-col"
+            >
+              <div class="flex items-center justify-between mb-8">
+                <div>
+                  <h4 class="dark:text-white text-navy-text font-bold text-lg">
+                    Performance Trend
+                  </h4>
+                  <p class="text-slate-500 text-sm">
+                    Quality score variation over last 30 days
+                  </p>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    class="px-3 py-1 rounded bg-slate-100 dark:bg-white/5 text-slate-400 text-xs font-bold uppercase"
+                  >
+                    Week
+                  </button>
+                  <button
+                    class="px-3 py-1 rounded bg-primary text-white text-xs font-bold uppercase"
+                  >
+                    Month
+                  </button>
+                </div>
+              </div>
+              <div class="flex-1 w-full relative group">
+                <div
+                  class="absolute inset-0 flex items-end justify-between px-2 pt-10"
+                >
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[60%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[55%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[70%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[85%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[80%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-secondary/30 to-secondary/10 h-[92%] rounded-t-sm border-t-2 border-secondary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[75%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[82%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[88%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                  <div
+                    class="w-8 bg-gradient-to-t from-primary/30 to-primary/10 h-[95%] rounded-t-sm border-t-2 border-primary"
+                  ></div>
+                </div>
+                <div
+                  class="absolute bottom-0 w-full h-px dark:bg-white/10 bg-slate-200"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <section class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3
+                class="dark:text-white text-navy-text font-bold text-lg flex items-center gap-2"
+              >
+                <span class="material-symbols-outlined text-primary"
+                  >groups</span
+                >
+                Lead Categorization
+              </h3>
+              <div
+                class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase"
+              >
+                <span>Live Refresh</span>
+                <span
+                  class="size-2 rounded-full bg-emerald-500 animate-pulse"
+                ></span>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="glow-card hot-glow p-6 rounded-2xl flex flex-col">
+                <div class="flex justify-between items-start mb-4">
+                  <div class="space-y-1">
+                    <span
+                      class="px-2 py-0.5 rounded-full bg-lead-hot/10 text-lead-hot text-[10px] font-bold uppercase tracking-wider"
+                      >Hot Lead</span
+                    >
+                    <h4
+                      class="text-3xl font-extrabold dark:text-white text-navy-text tracking-tight"
+                    >
+                      1,284
+                    </h4>
+                  </div>
+                  <div class="relative size-14">
+                    <svg class="size-full" viewBox="0 0 36 36">
+                      <circle
+                        class="stroke-slate-200 dark:stroke-white/5"
+                        cx="18"
+                        cy="18"
+                        fill="none"
+                        r="16"
+                        stroke-width="3"
+                      ></circle>
+                      <circle
+                        class="stroke-lead-hot progress-ring-circle"
+                        cx="18"
+                        cy="18"
+                        fill="none"
+                        r="16"
+                        stroke-dasharray="100"
+                        stroke-dashoffset="15"
+                        stroke-linecap="round"
+                        stroke-width="3"
+                      ></circle>
+                    </svg>
+                    <div
+                      class="absolute inset-0 flex items-center justify-center"
+                    >
+                      <span
+                        class="text-[10px] font-bold dark:text-white text-navy-text"
+                        >85%</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="flex-1 min-h-[40px] flex items-end gap-1 mb-3">
+                  <div class="w-full h-8 flex items-end gap-1">
+                    <div class="flex-1 bg-lead-hot/20 h-1/2 rounded-t-sm"></div>
+                    <div class="flex-1 bg-lead-hot/30 h-2/3 rounded-t-sm"></div>
+                    <div class="flex-1 bg-lead-hot/40 h-3/4 rounded-t-sm"></div>
+                    <div class="flex-1 bg-lead-hot/20 h-1/2 rounded-t-sm"></div>
+                    <div
+                      class="flex-1 bg-lead-hot/50 h-full rounded-t-sm"
+                    ></div>
+                    <div class="flex-1 bg-lead-hot/30 h-2/3 rounded-t-sm"></div>
+                  </div>
+                </div>
+                <div
+                  class="flex items-center justify-between text-[11px] font-semibold"
+                >
+                  <span class="text-slate-500">Conv. Probability</span>
+                  <span class="text-lead-hot">+4.2% vs yesterday</span>
+                </div>
+              </div>
+              <div class="glow-card warm-glow p-6 rounded-2xl flex flex-col">
+                <div class="flex justify-between items-start mb-4">
+                  <div class="space-y-1">
+                    <span
+                      class="px-2 py-0.5 rounded-full bg-lead-warm/10 text-lead-warm text-[10px] font-bold uppercase tracking-wider"
+                      >Warm Lead</span
+                    >
+                    <h4
+                      class="text-3xl font-extrabold dark:text-white text-navy-text tracking-tight"
+                    >
+                      3,592
+                    </h4>
+                  </div>
+                  <div class="relative size-14">
+                    <svg class="size-full" viewBox="0 0 36 36">
+                      <circle
+                        class="stroke-slate-200 dark:stroke-white/5"
+                        cx="18"
+                        cy="18"
+                        fill="none"
+                        r="16"
+                        stroke-width="3"
+                      ></circle>
+                      <circle
+                        class="stroke-lead-warm progress-ring-circle"
+                        cx="18"
+                        cy="18"
+                        fill="none"
+                        r="16"
+                        stroke-dasharray="100"
+                        stroke-dashoffset="45"
+                        stroke-linecap="round"
+                        stroke-width="3"
+                      ></circle>
+                    </svg>
+                    <div
+                      class="absolute inset-0 flex items-center justify-center"
+                    >
+                      <span
+                        class="text-[10px] font-bold dark:text-white text-navy-text"
+                        >55%</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="flex-1 min-h-[40px] flex items-end gap-1 mb-3">
+                  <div class="w-full h-8 flex items-end gap-1">
+                    <div
+                      class="flex-1 bg-lead-warm/20 h-1/3 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-warm/40 h-1/2 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-warm/20 h-1/3 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-warm/50 h-3/4 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-warm/30 h-2/3 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-warm/20 h-1/2 rounded-t-sm"
+                    ></div>
+                  </div>
+                </div>
+                <div
+                  class="flex items-center justify-between text-[11px] font-semibold"
+                >
+                  <span class="text-slate-500">Conv. Probability</span>
+                  <span class="text-lead-warm">+1.8% vs yesterday</span>
+                </div>
+              </div>
+              <div class="glow-card cold-glow p-6 rounded-2xl flex flex-col">
+                <div class="flex justify-between items-start mb-4">
+                  <div class="space-y-1">
+                    <span
+                      class="px-2 py-0.5 rounded-full bg-lead-cold/10 text-lead-cold text-[10px] font-bold uppercase tracking-wider"
+                      >Cold Lead</span
+                    >
+                    <h4
+                      class="text-3xl font-extrabold dark:text-white text-navy-text tracking-tight"
+                    >
+                      7,606
+                    </h4>
+                  </div>
+                  <div class="relative size-14">
+                    <svg class="size-full" viewBox="0 0 36 36">
+                      <circle
+                        class="stroke-slate-200 dark:stroke-white/5"
+                        cx="18"
+                        cy="18"
+                        fill="none"
+                        r="16"
+                        stroke-width="3"
+                      ></circle>
+                      <circle
+                        class="stroke-lead-cold progress-ring-circle"
+                        cx="18"
+                        cy="18"
+                        fill="none"
+                        r="16"
+                        stroke-dasharray="100"
+                        stroke-dashoffset="78"
+                        stroke-linecap="round"
+                        stroke-width="3"
+                      ></circle>
+                    </svg>
+                    <div
+                      class="absolute inset-0 flex items-center justify-center"
+                    >
+                      <span
+                        class="text-[10px] font-bold dark:text-white text-navy-text"
+                        >22%</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="flex-1 min-h-[40px] flex items-end gap-1 mb-3">
+                  <div class="w-full h-8 flex items-end gap-1">
+                    <div
+                      class="flex-1 bg-lead-cold/20 h-1/4 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-cold/30 h-1/3 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-cold/20 h-1/4 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-cold/40 h-1/2 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-cold/20 h-1/4 rounded-t-sm"
+                    ></div>
+                    <div
+                      class="flex-1 bg-lead-cold/10 h-1/6 rounded-t-sm"
+                    ></div>
+                  </div>
+                </div>
+                <div
+                  class="flex items-center justify-between text-[11px] font-semibold"
+                >
+                  <span class="text-slate-500">Conv. Probability</span>
+                  <span class="text-slate-400">Stable</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="glow-card rounded-2xl overflow-hidden mb-10">
+            <div
+              class="p-6 border-b dark:border-white/5 border-slate-200 flex items-center justify-between"
+            >
+              <div>
+                <h4 class="dark:text-white text-navy-text font-bold text-lg">
+                  Recent Recordings
+                </h4>
+                <p class="text-slate-500 text-sm">AI processed interactions</p>
+              </div>
+              <div class="flex gap-3">
+                <button
+                  class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 dark:text-white text-slate-700 rounded-lg text-sm font-semibold transition-all"
+                >
+                  <span class="material-symbols-outlined text-lg"
+                    >filter_list</span
+                  >
+                  Filter
+                </button>
+                <button
+                  class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 dark:text-white text-slate-700 rounded-lg text-sm font-semibold transition-all"
+                >
+                  <span class="material-symbols-outlined text-lg"
+                    >download</span
+                  >
+                  Export
+                </button>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead
+                  class="bg-slate-50 dark:bg-white/5 text-[11px] uppercase font-bold text-slate-500 tracking-wider"
+                >
+                  <tr>
+                    <th class="px-8 py-4">Timestamp</th>
+                    <th class="px-8 py-4">Agent</th>
+                    <th class="px-8 py-4">Lead Status</th>
+                    <th class="px-8 py-4">Sentiment</th>
+                    <th class="px-8 py-4">QC Score</th>
+                    <th class="px-8 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y dark:divide-white/5 divide-slate-100">
+                  <tr
+                    class="hover:bg-slate-50 dark:hover:bg-white/5 transition-all group"
+                  >
+                    <td
+                      class="px-8 py-5 text-sm font-medium text-slate-600 dark:text-slate-300"
+                    >
+                      Oct 24, 14:32:05
+                    </td>
+                    <td class="px-8 py-5">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="size-7 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 border dark:border-white/10 border-slate-200"
+                        ></div>
+                        <span
+                          class="text-sm font-semibold dark:text-white text-navy-text"
+                          >Alex Johnson</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-8 py-5">
+                      <span
+                        class="px-2.5 py-1 rounded-full bg-lead-hot/10 border border-lead-hot/20 text-[10px] font-bold text-lead-hot uppercase"
+                        >Hot</span
+                      >
+                    </td>
+                    <td class="px-8 py-5">
+                      <div class="flex items-center gap-2">
+                        <span class="size-2 rounded-full bg-secondary"></span>
+                        <span
+                          class="text-sm font-medium text-slate-600 dark:text-slate-300"
+                          >Positive</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-8 py-5">
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="w-16 h-1.5 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                        >
+                          <div class="bg-secondary h-full w-[88%]"></div>
+                        </div>
+                        <span
+                          class="text-sm font-bold dark:text-white text-navy-text"
+                          >88%</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                      <div
+                        class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <button
+                          class="size-9 flex items-center justify-center rounded-lg bg-white/10 border border-slate-200 dark:border-transparent hover:bg-primary hover:text-white transition-all text-slate-400"
+                          title="Play Audio"
+                        >
+                          <span class="material-symbols-outlined text-xl"
+                            >play_circle</span
+                          >
+                        </button>
+                        <button
+                          class="size-9 flex items-center justify-center rounded-lg bg-white/10 border border-slate-200 dark:border-transparent hover:bg-secondary hover:text-white transition-all text-slate-400"
+                          title="AI Summary"
+                        >
+                          <span class="material-symbols-outlined text-xl"
+                            >summarize</span
+                          >
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr
+                    class="hover:bg-slate-50 dark:hover:bg-white/5 transition-all group"
+                  >
+                    <td
+                      class="px-8 py-5 text-sm font-medium text-slate-600 dark:text-slate-300"
+                    >
+                      Oct 24, 14:28:11
+                    </td>
+                    <td class="px-8 py-5">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="size-7 rounded-full bg-gradient-to-br from-rose-500/30 to-orange-500/30 border dark:border-white/10 border-slate-200"
+                        ></div>
+                        <span
+                          class="text-sm font-semibold dark:text-white text-navy-text"
+                          >Sarah Miller</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-8 py-5">
+                      <span
+                        class="px-2.5 py-1 rounded-full bg-lead-warm/10 border border-lead-warm/20 text-[10px] font-bold text-lead-warm uppercase"
+                        >Warm</span
+                      >
+                    </td>
+                    <td class="px-8 py-5">
+                      <div class="flex items-center gap-2">
+                        <span class="size-2 rounded-full bg-rose-500"></span>
+                        <span
+                          class="text-sm font-medium text-slate-600 dark:text-slate-300"
+                          >Negative</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-8 py-5">
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="w-16 h-1.5 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                        >
+                          <div class="bg-rose-500 h-full w-[45%]"></div>
+                        </div>
+                        <span
+                          class="text-sm font-bold dark:text-white text-navy-text"
+                          >45%</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                      <div
+                        class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <button
+                          class="size-9 flex items-center justify-center rounded-lg bg-white/10 border border-slate-200 dark:border-transparent hover:bg-primary hover:text-white transition-all text-slate-400"
+                          title="Play Audio"
+                        >
+                          <span class="material-symbols-outlined text-xl"
+                            >play_circle</span
+                          >
+                        </button>
+                        <button
+                          class="size-9 flex items-center justify-center rounded-lg bg-white/10 border border-slate-200 dark:border-transparent hover:bg-secondary hover:text-white transition-all text-slate-400"
+                          title="AI Summary"
+                        >
+                          <span class="material-symbols-outlined text-xl"
+                            >summarize</span
+                          >
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div
+              class="p-6 bg-slate-50 dark:bg-white/5 border-t dark:border-white/5 border-slate-200 flex items-center justify-between"
+            >
+              <p class="text-xs text-slate-500 font-medium">
+                Showing 1-10 of 12,482 entries
+              </p>
+              <div class="flex gap-2">
+                <button
+                  class="px-3 py-1.5 rounded bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-navy-text dark:hover:text-white transition-all text-xs font-bold uppercase disabled:opacity-50"
+                  disabled=""
+                >
+                  Prev
+                </button>
+                <button
+                  class="px-3 py-1.5 rounded bg-primary text-white text-xs font-bold uppercase"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload Page -->
+      <div id="page-upload" class="page">
+        <!-- Hidden file input -->
+        <input
+          type="file"
+          id="fileInput"
+          accept=".mp3,.wav,.flac"
+          style="display: none"
+          multiple
+        />
+
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+          <div class="p-8">
+            <div class="max-w-5xl mx-auto space-y-8">
+              <div
+                class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden"
+              >
+                <div
+                  class="p-8 pb-4 flex flex-col md:flex-row md:items-end justify-between gap-6"
+                >
+                  <div class="flex items-start gap-5">
+                    <div
+                      class="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary"
+                    >
+                      <span class="material-symbols-outlined text-3xl"
+                        >model_training</span
+                      >
+                    </div>
+                    <div>
+                      <h2
+                        class="text-2xl font-extrabold text-navy-text dark:text-white"
+                      >
+                        Upload Audio Assets
+                      </h2>
+                      <p
+                        class="text-slate-500 dark:text-slate-400 text-sm mt-1"
+                      >
+                        High-fidelity AI Quality Control processing center
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    class="p-1 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center w-fit border border-slate-200 dark:border-white/5"
+                  >
+                    <button
+                      id="singleUploadBtn"
+                      class="flex items-center gap-2 py-2 px-6 rounded-lg text-xs font-bold transition-all bg-white dark:bg-white/10 shadow-sm text-primary"
+                    >
+                      <span class="material-symbols-outlined text-sm"
+                        >filter_1</span
+                      >
+                      Single
+                    </button>
+                    <button
+                      id="bulkUploadBtn"
+                      class="flex items-center gap-2 py-2 px-6 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-navy-text dark:hover:text-white"
+                    >
+                      <span class="material-symbols-outlined text-sm"
+                        >filter_none</span
+                      >
+                      Bulk
+                    </button>
+                  </div>
+                </div>
+                <div class="p-4 pt-4 space-y-8">
+                  <div
+                    id="uploadZone"
+                    class="upload-zone rounded-3xl p-16 flex flex-col items-center justify-center border-2 border-dashed cursor-pointer group dark:bg-slate-800/30"
+                  >
+                    <div
+                      class="size-24 rounded-full bg-gradient-to-tr from-primary/20 to-secondary/20 flex items-center justify-center text-primary mb-8 group-hover:scale-110 transition-transform duration-500 shadow-inner"
+                    >
+                      <span class="material-symbols-outlined text-5xl"
+                        >upload_file</span
+                      >
+                    </div>
+                    <div class="text-center space-y-2">
+                      <h3
+                        class="text-xl font-bold text-navy-text dark:text-white"
+                      >
+                        Drag &amp; Drop files here
+                      </h3>
+                      <p class="text-slate-400 text-sm max-w-xs mx-auto">
+                        MP3, WAV, FLAC files are supported. Maximum file size up
+                        to 256MB.
+                      </p>
+                    </div>
+                    <button
+                      id="browseBtn"
+                      class="mt-8 px-8 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-navy-text dark:text-white hover:border-primary transition-all shadow-sm hover:shadow-lg hover:shadow-primary/10"
+                    >
+                      Browse Local Storage
+                    </button>
+                  </div>
+                  <div class="space-y-4">
+                    <div class="flex items-center justify-between px-2">
+                      <div class="flex items-center gap-2">
+                        <h4
+                          class="text-sm font-extrabold text-navy-text dark:text-white"
+                        >
+                          Processing Queue (<span id="fileCount">0</span>)
+                        </h4>
+                      </div>
+                      <button
+                        id="clearAllBtn"
+                        class="text-xs font-bold text-slate-400 hover:text-rose-500 flex items-center gap-1 transition-colors"
+                      >
+                        <span class="material-symbols-outlined text-sm"
+                          >delete_sweep</span
+                        >
+                        Clear all
+                      </button>
+                    </div>
+                    <div id="fileQueue" class="space-y-3">
+                      <!-- Files will be dynamically added here -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div
+                  class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-white/5 flex items-center gap-4"
+                >
+                  <div
+                    class="size-12 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center"
+                  >
+                    <span class="material-symbols-outlined">bolt</span>
+                  </div>
+                  <div>
+                    <p
+                      class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+                    >
+                      Est. Processing
+                    </p>
+                    <p class="text-sm font-bold dark:text-white">
+                      ~ 2 min 40 sec
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-white/5 flex items-center gap-4"
+                >
+                  <div
+                    class="size-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center"
+                  >
+                    <span class="material-symbols-outlined">verified</span>
+                  </div>
+                  <div>
+                    <p
+                      class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+                    >
+                      QC Accuracy
+                    </p>
+                    <p class="text-sm font-bold dark:text-white">
+                      99.8% Confirmed
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-white/5 flex items-center gap-4"
+                >
+                  <div
+                    class="size-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center"
+                  >
+                    <span class="material-symbols-outlined">storage</span>
+                  </div>
+                  <div>
+                    <p
+                      class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+                    >
+                      Total Size
+                    </p>
+                    <p class="text-sm font-bold dark:text-white">
+                      <span id="totalSize">0</span> MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div
+          id="uploadBottomBar"
+          class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200/50 dark:border-white/10 p-4 shadow-2xl flex items-center justify-between gap-4"
+        >
+          <div class="flex items-center gap-4 pl-4">
+            <div class="flex -space-x-2">
+              <div
+                class="size-8 rounded-full border-2 border-white dark:border-slate-800 bg-secondary/20 flex items-center justify-center text-secondary"
+              >
+                <span class="material-symbols-outlined text-xs"
+                  >audio_file</span
+                >
+              </div>
+              <div
+                class="size-8 rounded-full border-2 border-white dark:border-slate-800 bg-primary/20 flex items-center justify-center text-primary"
+              >
+                <span class="material-symbols-outlined text-xs"
+                  >audio_file</span
+                >
+              </div>
+            </div>
+            <p class="text-xs font-bold text-slate-600 dark:text-slate-300">
+              <span id="selectedCount">0</span> files selected for batch
+              processing
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              id="cancelBtn"
+              class="px-6 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:text-navy-text dark:hover:text-white transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              id="processBtn"
+              class="px-8 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold text-xs shadow-lg shadow-primary/30 flex items-center gap-2 transition-all group"
+            >
+              Submit &amp; Process
+              <span
+                class="material-symbols-outlined text-sm group-hover:translate-x-0.5 transition-transform"
+                >arrow_forward</span
+              >
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports Page -->
+      <div id="page-reports" class="page">
+        <div class="p-8 space-y-8">
+          <section
+            class="flex flex-col md:flex-row md:items-end justify-between gap-6"
+          >
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 flex-1">
+              <div class="glow-card p-6 rounded-2xl">
+                <p
+                  class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2"
+                >
+                  Total Transcriptions
+                </p>
+                <div class="flex items-baseline gap-2">
+                  <h3
+                    class="text-3xl font-extrabold dark:text-white text-navy-text"
+                  >
+                    42,851
+                  </h3>
+                  <span class="text-emerald-500 text-xs font-bold">+8.4%</span>
+                </div>
+              </div>
+              <div class="glow-card p-6 rounded-2xl">
+                <p
+                  class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2"
+                >
+                  Avg Quality Score
+                </p>
+                <div class="flex items-baseline gap-2">
+                  <h3
+                    class="text-3xl font-extrabold dark:text-white text-navy-text"
+                  >
+                    94.2%
+                  </h3>
+                  <span class="text-emerald-500 text-xs font-bold">+1.2%</span>
+                </div>
+              </div>
+              <div class="glow-card p-6 rounded-2xl">
+                <p
+                  class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2"
+                >
+                  Lead Conversion %
+                </p>
+                <div class="flex items-baseline gap-2">
+                  <h3
+                    class="text-3xl font-extrabold dark:text-white text-navy-text"
+                  >
+                    24.8%
+                  </h3>
+                  <span class="text-rose-500 text-xs font-bold">-0.5%</span>
+                </div>
+              </div>
+            </div>
+            <div class="shrink-0">
+              <div class="relative">
+                <span
+                  class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"
+                  >calendar_today</span
+                >
+                <select
+                  class="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-sm rounded-xl pl-10 pr-10 py-3 w-64 appearance-none focus:ring-primary focus:border-primary"
+                >
+                  <option>Last 30 Days</option>
+                  <option>Last 7 Days</option>
+                  <option>Last Quarter</option>
+                  <option>Custom Range</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="glow-card p-4 rounded-2xl flex flex-wrap items-center gap-4"
+          >
+            <div class="relative">
+              <button
+                class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200"
+              >
+                <span class="material-symbols-outlined text-amber-400 text-lg"
+                  >star</span
+                >
+                <span>Rating Filter</span>
+                <span class="material-symbols-outlined text-lg"
+                  >expand_more</span
+                >
+              </button>
+            </div>
+            <div class="h-6 w-px bg-slate-200 dark:bg-white/10 mx-2"></div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                class="px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold flex items-center gap-2"
+              >
+                Promise to Pay
+                <span class="material-symbols-outlined text-xs">close</span>
+              </button>
+              <button
+                class="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-300 dark:hover:border-white/20 text-xs font-bold"
+              >
+                Wrong Number
+              </button>
+              <button
+                class="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-300 dark:hover:border-white/20 text-xs font-bold"
+              >
+                Callback Request
+              </button>
+              <button
+                class="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-300 dark:hover:border-white/20 text-xs font-bold"
+              >
+                Technical Issue
+              </button>
+              <button
+                class="px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-300 dark:hover:border-white/20 text-xs font-bold"
+              >
+                Dispute
+              </button>
+              <button
+                class="flex items-center gap-1 px-3 py-1.5 text-primary text-xs font-bold hover:underline"
+              >
+                <span class="material-symbols-outlined text-xs">add</span>
+                More Categories
+              </button>
+            </div>
+          </section>
+
+          <section class="glow-card rounded-2xl overflow-hidden mb-10">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead
+                  class="bg-slate-50 dark:bg-white/5 text-[11px] uppercase font-bold text-slate-500 tracking-wider"
+                >
+                  <tr>
+                    <th class="px-6 py-4">Filename</th>
+                    <th class="px-6 py-4 text-center">Audio</th>
+                    <th class="px-6 py-4 text-center">Chat</th>
+                    <th class="px-6 py-4 text-center">Summary</th>
+                    <th class="px-6 py-4">Category</th>
+                    <th class="px-6 py-4">Callback Date</th>
+                    <th class="px-6 py-4">Promise Date</th>
+                    <th class="px-6 py-4 text-right">Agent Score</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y dark:divide-white/5 divide-slate-100">
+                  {% if records %} {% for record in records %}
+                  <tr
+                    class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group cursor-default"
+                  >
+                    <td class="px-6 py-4">
+                      <span
+                        class="text-sm font-semibold dark:text-white text-navy-text"
+                        >{{ record.filename }}</span
+                      >
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <button
+                        class="audio-btn size-8 inline-flex items-center justify-center rounded-lg bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all"
+                        data-filename="{{ record.filename }}"
+                        data-duration="05:42"
+                      >
+                        <span class="material-symbols-outlined text-lg"
+                          >graphic_eq</span
+                        >
+                      </button>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <button
+                        class="chat-btn size-8 inline-flex items-center justify-center rounded-lg bg-secondary/5 text-secondary hover:bg-secondary hover:text-white transition-all"
+                      >
+                        <span class="material-symbols-outlined text-lg"
+                          >chat_bubble</span
+                        >
+                      </button>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <button
+                        class="summary-btn size-8 inline-flex items-center justify-center rounded-lg bg-amber-500/5 text-amber-500 hover:bg-amber-500 hover:text-white transition-all"
+                      >
+                        <span class="material-symbols-outlined text-lg"
+                          >auto_fix_high</span
+                        >
+                      </button>
+                    </td>
+                    <td class="px-6 py-4">
+                      <span
+                        class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tight"
+                        >{{ record.category if record.category else "" }}</span
+                      >
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-500">{{ record.callback_date if record.callback_date else "" }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500">
+                      {{ record.promise_date if record.promise_date else ""}}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <span
+                        class="text-sm font-bold text-emerald-500 score-clickable individual-score"
+                      >
+                        {{record.agent_score}}
+                      </span>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div
+              class="p-6 bg-slate-50 dark:bg-white/5 border-t dark:border-white/5 border-slate-200 flex items-center justify-between"
+            >
+              <p class="text-xs text-slate-500 font-medium">
+                Showing 1-10 of 42,851 entries
+              </p>
+              <div class="flex gap-2">
+                <button
+                  class="px-3 py-1.5 rounded bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-navy-text dark:hover:text-white transition-all text-xs font-bold uppercase disabled:opacity-50"
+                  disabled=""
+                >
+                  Prev
+                </button>
+                <button
+                  class="px-3 py-1.5 rounded bg-primary text-white text-xs font-bold uppercase"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Settings Page -->
+      <div id="page-settings" class="page">
+        <div class="p-8">
+          <div class="max-w-4xl mx-auto">
+            <div class="glow-card p-8 rounded-2xl">
+              <h3
+                class="dark:text-white text-navy-text font-bold text-2xl mb-2"
+              >
+                Settings
+              </h3>
+              <p class="text-slate-500 text-sm mb-8">
+                Configure your AI QC dashboard preferences
+              </p>
+
+              <div class="space-y-8">
+                <div>
+                  <h4
+                    class="dark:text-white text-navy-text font-bold text-lg mb-4 flex items-center gap-2"
+                  >
+                    <span class="material-symbols-outlined text-primary"
+                      >notifications</span
+                    >
+                    Notification Settings
+                  </h4>
+                  <div class="space-y-4">
+                    <div
+                      class="flex items-center justify-between p-4 bg-slate-50 dark:bg-white/5 rounded-xl"
+                    >
+                      <div>
+                        <p class="font-medium dark:text-white text-navy-text">
+                          Email Notifications
+                        </p>
+                        <p class="text-slate-500 text-sm">
+                          Receive daily summary reports
+                        </p>
+                      </div>
+                      <div class="relative">
+                        <input
+                          type="checkbox"
+                          id="email-notifications"
+                          class="sr-only"
+                          checked
+                        />
+                        <label
+                          for="email-notifications"
+                          class="block w-12 h-6 bg-slate-300 dark:bg-slate-700 rounded-full cursor-pointer transition-colors"
+                        >
+                          <span
+                            class="block w-6 h-6 bg-white rounded-full transform translate-x-6 transition-transform"
+                          ></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div
+                      class="flex items-center justify-between p-4 bg-slate-50 dark:bg-white/5 rounded-xl"
+                    >
+                      <div>
+                        <p class="font-medium dark:text-white text-navy-text">
+                          Real-time Alerts
+                        </p>
+                        <p class="text-slate-500 text-sm">
+                          Get alerts for urgent issues
+                        </p>
+                      </div>
+                      <div class="relative">
+                        <input
+                          type="checkbox"
+                          id="real-time-alerts"
+                          class="sr-only"
+                          checked
+                        />
+                        <label
+                          for="real-time-alerts"
+                          class="block w-12 h-6 bg-slate-300 dark:bg-slate-700 rounded-full cursor-pointer transition-colors"
+                        >
+                          <span
+                            class="block w-6 h-6 bg-white rounded-full transform translate-x-6 transition-transform"
+                          ></span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4
+                    class="dark:text-white text-navy-text font-bold text-lg mb-4 flex items-center gap-2"
+                  >
+                    <span class="material-symbols-outlined text-primary"
+                      >visibility</span
+                    >
+                    Display Preferences
+                  </h4>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-4 bg-slate-50 dark:bg-white/5 rounded-xl">
+                      <p
+                        class="font-medium dark:text-white text-navy-text mb-2"
+                      >
+                        Default View
+                      </p>
+                      <select
+                        class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 text-sm focus:ring-primary focus:border-primary"
+                      >
+                        <option>Dashboard</option>
+                        <option>Upload</option>
+                        <option>Reports</option>
+                      </select>
+                    </div>
+                    <div class="p-4 bg-slate-50 dark:bg-white/5 rounded-xl">
+                      <p
+                        class="font-medium dark:text-white text-navy-text mb-2"
+                      >
+                        Results Per Page
+                      </p>
+                      <select
+                        class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-2 text-sm focus:ring-primary focus:border-primary"
+                      >
+                        <option>10</option>
+                        <option>25</option>
+                        <option>50</option>
+                        <option>100</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Individual Agent Evaluation Popup -->
+    <div
+      id="individual-agent-popup"
+      class="agent-popup fixed z-50 w-96 rounded-2xl overflow-hidden shadow-2xl"
+    >
+      <div class="glass-popup dark:bg-slate-900/90 bg-white/90">
+        <div
+          class="p-4 border-b dark:border-white/5 border-slate-200 bg-gradient-to-r from-primary/5 to-secondary/5"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="size-8 rounded-lg flex items-center justify-center text-white"
+                id="individual-agent-icon"
+              >
+                <span class="material-symbols-outlined text-lg">person</span>
+              </div>
+              <div>
+                <h4
+                  class="font-bold dark:text-white text-navy-text"
+                  id="individual-agent-title"
+                >
+                  Agent Evaluation
+                </h4>
+                <p
+                  class="text-xs text-slate-500"
+                  id="individual-agent-subtitle"
+                >
+                  Individual Performance
+                </p>
+              </div>
+            </div>
+            <button
+              class="size-6 rounded flex items-center justify-center hover:bg-white/20 text-slate-400"
+              onclick="hideIndividualAgentPopup()"
+            >
+              <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <p
+                  class="text-sm font-semibold dark:text-white"
+                  id="individual-agent-name"
+                >
+                  Agent Name
+                </p>
+                <p class="text-xs text-slate-500" id="individual-agent-file">
+                  File: N/A
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold" id="individual-agent-score">0%</p>
+                <p
+                  class="text-xs text-slate-500"
+                  id="individual-agent-category"
+                >
+                  Category
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <p
+              class="text-xs text-slate-500 dark:text-slate-400 mb-2"
+              id="individual-agent-objective"
+            >
+              <strong>Objective:</strong> Loading...
+            </p>
+            <p
+              class="text-xs text-slate-500 dark:text-slate-400"
+              id="individual-agent-tone"
+            >
+              <strong>Tone:</strong> Loading...
+            </p>
+          </div>
+          <div class="space-y-2">
+            <div
+              class="grid grid-cols-12 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 pb-2 border-b dark:border-white/5"
+            >
+              <div class="col-span-7">Parameter</div>
+              <div class="col-span-3 text-center">Weight</div>
+              <div class="col-span-2 text-center">Score</div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Compliance</span
+                  >
+                </div>
+                <div class="col-span-3 text-center">
+                  <span class="text-xs font-bold text-slate-500"
+                    >Pass/Fail</span
+                  >
+                </div>
+                <div class="col-span-2 text-center">
+                  <span class="pass-badge text-[10px] px-1.5 py-0.5 rounded"
+                    >Pass</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Communication & Empathy</span
+                  >
+                </div>
+                <div class="col-span-3 text-center">
+                  <span class="text-xs font-bold text-slate-500">40%</span>
+                </div>
+                <div class="col-span-2 text-center">
+                  <span class="text-xs font-bold" id="comm-score">85%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full" id="comm-bar" style="width: 85%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Problem Understanding</span
+                  >
+                </div>
+                <div class="col-span-3 text-center">
+                  <span class="text-xs font-bold text-slate-500">25%</span>
+                </div>
+                <div class="col-span-2 text-center">
+                  <span class="text-xs font-bold" id="problem-score">80%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full" id="problem-bar" style="width: 80%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Payment Ask & Guidance</span
+                  >
+                </div>
+                <div class="col-span-3 text-center">
+                  <span class="text-xs font-bold text-slate-500">25%</span>
+                </div>
+                <div class="col-span-2 text-center">
+                  <span class="text-xs font-bold" id="payment-score">78%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full" id="payment-bar" style="width: 78%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Call Closure</span
+                  >
+                </div>
+                <div class="col-span-3 text-center">
+                  <span class="text-xs font-bold text-slate-500">10%</span>
+                </div>
+                <div class="col-span-2 text-center">
+                  <span class="text-xs font-bold" id="closure-score">82%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full" id="closure-bar" style="width: 82%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t dark:border-white/5">
+              <div class="grid grid-cols-12 items-center font-bold">
+                <div class="col-span-7">
+                  <span class="text-sm dark:text-white">Total Score</span>
+                </div>
+                <div class="col-span-3 text-center">
+                  <span class="text-xs text-slate-500">100%</span>
+                </div>
+                <div class="col-span-2 text-center">
+                  <span class="text-sm font-bold" id="total-score">92%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 p-3 rounded-lg border" id="individual-agent-note">
+            <!-- Note will be dynamically added here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent Evaluation Popups -->
+    <!-- Green Agents Evaluation Popup -->
+    <div
+      id="green-agents-popup"
+      class="agent-popup fixed z-50 w-96 rounded-2xl overflow-hidden shadow-2xl border dark:border-emerald-500/20 border-emerald-500/10"
+    >
+      <div class="glass-popup dark:bg-emerald-950/10 bg-emerald-50/80">
+        <div
+          class="p-4 border-b dark:border-emerald-500/10 border-emerald-500/5 bg-gradient-to-r from-emerald-500/5 to-emerald-500/10"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="size-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-500"
+              >
+                <span class="material-symbols-outlined text-lg">verified</span>
+              </div>
+              <div>
+                <h4 class="font-bold dark:text-white text-navy-text">
+                  Agents in Green - Evaluation Parameters
+                </h4>
+                <p class="text-xs text-emerald-600 dark:text-emerald-400">
+                  Score >= 7 • Early DPD (0–30 Days)
+                </p>
+              </div>
+            </div>
+            <button
+              class="size-6 rounded flex items-center justify-center hover:bg-white/20 text-emerald-600 dark:text-emerald-400"
+              onclick="hideAgentPopup()"
+            >
+              <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="mb-3">
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
+              <strong>Objective:</strong> Remind, resolve, protect relationship
+            </p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              <strong>Tone:</strong> Soft, supportive
+            </p>
+          </div>
+          <div class="space-y-2">
+            <div
+              class="grid grid-cols-12 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 pb-2 border-b dark:border-white/5"
+            >
+              <div class="col-span-7">Parameter</div>
+              <div class="col-span-5 text-center">Weight</div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Compliance</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500"
+                    >Pass/Fail</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Communication & Empathy</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">40%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-emerald-500" style="width: 85%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Problem Understanding</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">25%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-emerald-500" style="width: 80%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Payment Ask & Guidance</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">25%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-emerald-500" style="width: 78%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Call Closure</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">10%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-emerald-500" style="width: 82%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t dark:border-white/5">
+              <div class="grid grid-cols-12 items-center font-bold">
+                <div class="col-span-7">
+                  <span class="text-sm dark:text-white">Total Score</span>
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs text-slate-500">100%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Yellow Agents Evaluation Popup -->
+    <div
+      id="yellow-agents-popup"
+      class="agent-popup fixed z-50 w-96 rounded-2xl overflow-hidden shadow-2xl border dark:border-amber-500/20 border-amber-500/10"
+    >
+      <div class="glass-popup dark:bg-amber-950/10 bg-amber-50/80">
+        <div
+          class="p-4 border-b dark:border-amber-500/10 border-amber-500/5 bg-gradient-to-r from-amber-500/5 to-amber-500/10"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="size-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-500"
+              >
+                <span class="material-symbols-outlined text-lg">rule</span>
+              </div>
+              <div>
+                <h4 class="font-bold dark:text-white text-navy-text">
+                  Agents in Yellow - Evaluation Parameters
+                </h4>
+                <p class="text-xs text-amber-600 dark:text-amber-400">
+                  Score 3-7 • Mid DPD (31–90 Days)
+                </p>
+              </div>
+            </div>
+            <button
+              class="size-6 rounded flex items-center justify-center hover:bg-white/20 text-amber-600 dark:text-amber-400"
+              onclick="hideAgentPopup()"
+            >
+              <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="mb-3">
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
+              <strong>Objective:</strong> Secure commitment & prevent
+              roll-forward
+            </p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              <strong>Tone:</strong> Firm but respectful
+            </p>
+          </div>
+          <div class="space-y-2">
+            <div
+              class="grid grid-cols-12 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 pb-2 border-b dark:border-white/5"
+            >
+              <div class="col-span-7">Parameter</div>
+              <div class="col-span-5 text-center">Weight</div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Compliance</span
+                  >
+                  <span
+                    class="pass-badge text-[10px] px-1.5 py-0.5 rounded ml-2"
+                    >Pass</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500"
+                    >Pass/Fail</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Communication & Control</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">30%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-amber-500" style="width: 55%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Objection Handling</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">25%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-amber-500" style="width: 48%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Negotiation & PTP</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">25%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-amber-500" style="width: 52%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Closure & Follow-up</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">20%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-amber-500" style="width: 45%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t dark:border-white/5">
+              <div class="grid grid-cols-12 items-center font-bold">
+                <div class="col-span-7">
+                  <span class="text-sm dark:text-white">Total Score</span>
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs text-slate-500">100%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Red Agents Evaluation Popup -->
+    <div
+      id="red-agents-popup"
+      class="agent-popup fixed z-50 w-96 rounded-2xl overflow-hidden shadow-2xl border dark:border-rose-500/20 border-rose-500/10"
+    >
+      <div class="glass-popup dark:bg-rose-950/10 bg-rose-50/80">
+        <div
+          class="p-4 border-b dark:border-rose-500/10 border-rose-500/5 bg-gradient-to-r from-rose-500/5 to-rose-500/10"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="size-8 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-500"
+              >
+                <span class="material-symbols-outlined text-lg"
+                  >error_outline</span
+                >
+              </div>
+              <div>
+                <h4 class="font-bold dark:text-white text-navy-text">
+                  Agents in Red - Evaluation Parameters
+                </h4>
+                <p class="text-xs text-rose-600 dark:text-rose-400">
+                  Score < 3 • Late DPD (90+ Days)
+                </p>
+              </div>
+            </div>
+            <button
+              class="size-6 rounded flex items-center justify-center hover:bg-white/20 text-rose-600 dark:text-rose-400"
+              onclick="hideAgentPopup()"
+            >
+              <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="mb-3">
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
+              <strong>Objective:</strong> Recover or prepare for escalation
+            </p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              <strong>Tone:</strong> Professional, factual
+            </p>
+          </div>
+          <div class="space-y-2">
+            <div
+              class="grid grid-cols-12 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 pb-2 border-b dark:border-white/5"
+            >
+              <div class="col-span-7">Parameter</div>
+              <div class="col-span-5 text-center">Weight</div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Compliance</span
+                  >
+                  <span
+                    class="fail-badge text-[10px] px-1.5 py-0.5 rounded ml-2"
+                    >Fail</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500"
+                    >Pass/Fail</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Call Control</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">35%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-rose-500" style="width: 25%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Consequence Explanation (Factual)</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">25%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-rose-500" style="width: 18%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Negotiation / Settlement Push</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">25%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-rose-500" style="width: 20%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="parameter-row p-2 rounded">
+              <div class="grid grid-cols-12 items-center">
+                <div class="col-span-7">
+                  <span class="text-xs font-medium dark:text-white"
+                    >Closure</span
+                  >
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs font-bold text-slate-500">15%</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div
+                  class="h-1 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-rose-500" style="width: 15%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t dark:border-white/5">
+              <div class="grid grid-cols-12 items-center font-bold">
+                <div class="col-span-7">
+                  <span class="text-sm dark:text-white">Total Score</span>
+                </div>
+                <div class="col-span-5 text-center">
+                  <span class="text-xs text-slate-500">100%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="mt-4 p-3 bg-rose-500/5 rounded-lg border border-rose-500/10"
+          >
+            <p class="text-xs text-rose-600 dark:text-rose-400 font-medium">
+              ⚠️ Requires immediate coaching intervention
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup Modals -->
+    <!-- Audio Popup -->
+    <div
+      id="audioPopup"
+      class="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-all duration-300 popup-backdrop"
+    >
+      <div
+        class="glass-popup w-full max-w-2xl rounded-[2rem] overflow-hidden shadow-2xl transform scale-95 transition-all duration-300"
+      >
+        <div
+          class="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"
+            >
+              <span class="material-symbols-outlined">graphic_eq</span>
+            </div>
+            <div>
+              <h3
+                class="text-lg font-bold text-navy-text dark:text-white leading-none"
+                id="audioTitle"
+              >
+                Audio Playback Analysis
+              </h3>
+              <p
+                class="text-xs text-slate-500 mt-1.5 font-medium"
+                id="audioSubtitle"
+              >
+                CALL_TRX_20914.mp3 • 05:42 duration
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              class="size-9 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/5 text-slate-400 transition-colors"
+            >
+              <span class="material-symbols-outlined text-xl">download</span>
+            </button>
+            <button
+              id="closeAudioBtn"
+              class="size-9 rounded-lg flex items-center justify-center hover:bg-rose-500/10 hover:text-rose-500 text-slate-400 transition-colors"
+            >
+              <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-10">
+          <div
+            class="h-32 flex items-center justify-center gap-[3px]"
+            id="waveformContainer"
+          >
+            <!-- Waveform will be generated by JS -->
+          </div>
+          <div
+            class="flex justify-between mt-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest"
+          >
+            <span id="currentTime">00:00</span>
+            <span id="totalTime">05:42</span>
+          </div>
+        </div>
+        <div class="px-8 pb-10 flex flex-col items-center gap-8">
+          <div class="flex items-center gap-8">
+            <button class="text-slate-400 hover:text-primary transition-colors">
+              <span class="material-symbols-outlined text-2xl">replay_10</span>
+            </button>
+            <button
+              id="playPauseBtn"
+              class="size-16 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white shadow-xl shadow-primary/30 hover:scale-105 transition-transform"
+            >
+              <span
+                class="material-symbols-outlined text-4xl translate-x-0.5"
+                id="playPauseIcon"
+                >play_arrow</span
+              >
+            </button>
+            <button class="text-slate-400 hover:text-primary transition-colors">
+              <span class="material-symbols-outlined text-2xl">forward_30</span>
+            </button>
+          </div>
+          <div
+            class="w-full flex items-center justify-between gap-6 border-t border-black/5 dark:border-white/5 pt-8"
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="text-[10px] font-bold text-slate-500 uppercase tracking-widest"
+                >Speed</span
+              >
+              <div class="flex bg-slate-100 dark:bg-white/5 p-1 rounded-lg">
+                <button
+                  class="speed-btn px-3 py-1 rounded text-[10px] font-bold text-slate-500 hover:text-primary"
+                  data-speed="0.5"
+                >
+                  0.5x
+                </button>
+                <button
+                  class="speed-btn px-3 py-1 rounded bg-white dark:bg-white/10 shadow-sm text-[10px] font-bold text-primary"
+                  data-speed="1.0"
+                >
+                  1.0x
+                </button>
+                <button
+                  class="speed-btn px-3 py-1 rounded text-[10px] font-bold text-slate-500 hover:text-primary"
+                  data-speed="1.5"
+                >
+                  1.5x
+                </button>
+                <button
+                  class="speed-btn px-3 py-1 rounded text-[10px] font-bold text-slate-500 hover:text-primary"
+                  data-speed="2.0"
+                >
+                  2.0x
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 w-40">
+              <span class="material-symbols-outlined text-slate-400 text-xl"
+                >volume_up</span
+              >
+              <div
+                class="flex-1 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden relative group cursor-pointer"
+              >
+                <div
+                  id="volumeBar"
+                  class="absolute inset-y-0 left-0 w-[70%] bg-secondary rounded-full"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-primary/5 p-6 border-t border-primary/10">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-primary text-sm"
+              >auto_fix_high</span
+            >
+            <span
+              class="text-[10px] font-bold text-primary uppercase tracking-widest"
+              >AI Insight</span
+            >
+          </div>
+          <p
+            class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic"
+            id="audioInsight"
+          >
+            "Agent maintained professional tone throughout. Customer confirmed
+            willingness to pay on scheduled date."
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Popup -->
+    <div
+      id="chatPopup"
+      class="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-all duration-300 popup-backdrop"
+    >
+      <div
+        class="glass-popup w-full max-w-2xl rounded-[2rem] overflow-hidden shadow-2xl transform scale-95 transition-all duration-300"
+      >
+        <div
+          class="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="size-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary"
+            >
+              <span class="material-symbols-outlined">chat_bubble</span>
+            </div>
+            <div>
+              <h3
+                class="text-lg font-bold text-navy-text dark:text-white leading-none"
+              >
+                Chat Transcription
+              </h3>
+              <p
+                class="text-xs text-slate-500 mt-1.5 font-medium"
+                id="chatFilename"
+              >
+                CALL_TRX_20914.mp3
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              class="size-9 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/5 text-slate-400 transition-colors"
+            >
+              <span class="material-symbols-outlined text-xl"
+                >content_copy</span
+              >
+            </button>
+            <button
+              id="closeChatBtn"
+              class="size-9 rounded-lg flex items-center justify-center hover:bg-rose-500/10 hover:text-rose-500 text-slate-400 transition-colors"
+            >
+              <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-6 max-h-[500px] overflow-y-auto custom-scrollbar">
+          <div class="space-y-4">
+            <div class="chat-message agent p-4 max-w-[80%]">
+              <div class="flex items-center gap-2 mb-2">
+                <div
+                  class="size-6 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center"
+                >
+                  <span class="material-symbols-outlined text-sm"
+                    >headset_mic</span
+                  >
+                </div>
+                <span
+                  class="text-xs font-bold text-slate-600 dark:text-slate-300"
+                  >Agent Alex</span
+                >
+                <span class="text-xs text-slate-400 ml-auto">10:02 AM</span>
+              </div>
+              <p class="text-sm">
+                Good morning! This is Alex calling from Customer Support. How
+                may I assist you today?
+              </p>
+            </div>
+            <div class="chat-message user p-4 max-w-[80%] ml-auto">
+              <div class="flex items-center gap-2 mb-2">
+                <div
+                  class="size-6 rounded-full bg-white/20 flex items-center justify-center"
+                >
+                  <span class="material-symbols-outlined text-sm text-white"
+                    >person</span
+                  >
+                </div>
+                <span class="text-xs font-bold text-white/90">Customer</span>
+                <span class="text-xs text-white/70 ml-auto">10:03 AM</span>
+              </div>
+              <p class="text-sm">
+                Hi, I received a notification about a late payment. Can you help
+                me understand what's going on?
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6 border-t border-black/5 dark:border-white/5">
+          <div class="flex gap-3">
+            <input
+              type="text"
+              class="flex-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-primary focus:border-primary"
+              placeholder="Type a message..."
+            />
+            <button
+              class="px-6 py-3 bg-primary text-white rounded-xl text-sm font-bold flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined">send</span>
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Popup -->
+    <div
+      id="summaryPopup"
+      class="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-all duration-300 popup-backdrop"
+    >
+      <div
+        class="glass-popup w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl transform scale-95 transition-all duration-300"
+      >
+        <div
+          class="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="size-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500"
+            >
+              <span class="material-symbols-outlined">auto_fix_high</span>
+            </div>
+            <div>
+              <h3
+                class="text-lg font-bold text-navy-text dark:text-white leading-none"
+              >
+                AI Transcription Summary
+              </h3>
+              <p
+                class="text-xs text-slate-500 mt-1.5 font-medium"
+                id="summaryFilename"
+              >
+                CALL_TRX_20914.mp3
+              </p>
+            </div>
+          </div>
+          <button
+            id="closeSummaryBtn"
+            class="size-9 rounded-lg flex items-center justify-center hover:bg-rose-500/10 hover:text-rose-500 text-slate-400 transition-colors"
+          >
+            <span class="material-symbols-outlined text-xl">close</span>
+          </button>
+        </div>
+        <div class="p-8">
+          <div
+            class="p-4 bg-primary/5 rounded-xl border border-primary/10 mb-6"
+          >
+            <p
+              class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed"
+              id="summaryText"
+            >
+              The customer called to discuss a late payment. Agent handled the
+              objection effectively using the standard script. A promise to pay
+              was secured for Oct 28. Sentiment shifted from negative to
+              positive by the end of the call.
+            </p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div
+              class="text-center border-r dark:border-white/5 border-slate-200 pr-4"
+            >
+              <p
+                class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"
+              >
+                Sentiment
+              </p>
+              <div class="flex items-center justify-center gap-1 mt-2">
+                <span class="size-2 rounded-full bg-emerald-500"></span>
+                <span class="text-sm font-bold text-emerald-500">Positive</span>
+              </div>
+            </div>
+            <div class="text-center">
+              <p
+                class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"
+              >
+                Confidence
+              </p>
+              <p
+                class="text-2xl font-extrabold text-navy-text dark:text-white mt-2"
+              >
+                98%
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3">
+            <button
+              id="closeSummaryBtn2"
+              class="px-4 py-2 text-sm font-bold text-slate-500 uppercase tracking-widest"
+            >
+              Close
+            </button>
+            <button
+              class="px-6 py-2 bg-primary text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 uppercase tracking-widest"
+            >
+              Full Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // State management
+        let currentPage = "dashboard";
+        let uploadFiles = [];
+        let uploadTotalSize = 0;
+        let uploadIsSingleUpload = true;
+        let currentAgentPopup = null;
+        let popupTimeout = null;
+
+        // Audio player state
+        let isPlaying = false;
+        let currentTime = 0;
+        let totalTime = 342; // 5:42 in seconds
+        let currentSpeed = 1.0;
+        let volume = 0.7;
+        let waveformInterval;
+
+        // DOM Elements
+        const themeToggleBtn = document.getElementById("themeToggleBtn");
+        const pageBreadcrumb = document.getElementById("page-breadcrumb");
+        const pageTitle = document.getElementById("page-title");
+        const searchInput = document.getElementById("search-input");
+        const navButtons = document.querySelectorAll(".nav-btn");
+        const pages = document.querySelectorAll(".page");
+        const sidebarUploadBtn = document.getElementById("sidebar-upload-btn");
+
+        // Upload page elements
+        const fileInput = document.getElementById("fileInput");
+        const uploadZone = document.getElementById("uploadZone");
+        const browseBtn = document.getElementById("browseBtn");
+        const singleUploadBtn = document.getElementById("singleUploadBtn");
+        const bulkUploadBtn = document.getElementById("bulkUploadBtn");
+        const clearAllBtn = document.getElementById("clearAllBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const processBtn = document.getElementById("processBtn");
+        const uploadBottomBar = document.getElementById("uploadBottomBar");
+        const fileQueue = document.getElementById("fileQueue");
+        const fileCountEl = document.getElementById("fileCount");
+        const selectedCountEl = document.getElementById("selectedCount");
+        const totalSizeEl = document.getElementById("totalSize");
+
+        // Agent efficiency cards
+        const greenAgentsCard = document.getElementById("green-agents-card");
+        const yellowAgentsCard = document.getElementById("yellow-agents-card");
+        const redAgentsCard = document.getElementById("red-agents-card");
+        const greenAgentsPopup = document.getElementById("green-agents-popup");
+        const yellowAgentsPopup = document.getElementById(
+          "yellow-agents-popup",
+        );
+        const redAgentsPopup = document.getElementById("red-agents-popup");
+
+        // Individual agent popup elements
+        const individualAgentPopup = document.getElementById(
+          "individual-agent-popup",
+        );
+        const individualAgentTitle = document.getElementById(
+          "individual-agent-title",
+        );
+        const individualAgentSubtitle = document.getElementById(
+          "individual-agent-subtitle",
+        );
+        const individualAgentName = document.getElementById(
+          "individual-agent-name",
+        );
+        const individualAgentFile = document.getElementById(
+          "individual-agent-file",
+        );
+        const individualAgentScore = document.getElementById(
+          "individual-agent-score",
+        );
+        const individualAgentCategory = document.getElementById(
+          "individual-agent-category",
+        );
+        const individualAgentObjective = document.getElementById(
+          "individual-agent-objective",
+        );
+        const individualAgentTone = document.getElementById(
+          "individual-agent-tone",
+        );
+        const individualAgentIcon = document.getElementById(
+          "individual-agent-icon",
+        );
+        const individualAgentNote = document.getElementById(
+          "individual-agent-note",
+        );
+
+        // Popup elements
+        const audioPopup = document.getElementById("audioPopup");
+        const chatPopup = document.getElementById("chatPopup");
+        const summaryPopup = document.getElementById("summaryPopup");
+        const closeAudioBtn = document.getElementById("closeAudioBtn");
+        const closeChatBtn = document.getElementById("closeChatBtn");
+        const closeSummaryBtn = document.getElementById("closeSummaryBtn");
+        const closeSummaryBtn2 = document.getElementById("closeSummaryBtn2");
+        const playPauseBtn = document.getElementById("playPauseBtn");
+        const playPauseIcon = document.getElementById("playPauseIcon");
+        const audioTitle = document.getElementById("audioTitle");
+        const audioSubtitle = document.getElementById("audioSubtitle");
+        const currentTimeEl = document.getElementById("currentTime");
+        const totalTimeEl = document.getElementById("totalTime");
+        const audioInsight = document.getElementById("audioInsight");
+        const chatFilename = document.getElementById("chatFilename");
+        const summaryFilename = document.getElementById("summaryFilename");
+        const summaryText = document.getElementById("summaryText");
+        const volumeBar = document.getElementById("volumeBar");
+        const waveformContainer = document.getElementById("waveformContainer");
+
+        // Individual agent evaluation function
+        function showIndividualAgentPopup(element, score, agentName, filename) {
+          const elementRect = element.getBoundingClientRect();
+          const popup = individualAgentPopup;
+
+          // Determine category based on score
+          let category, color, icon, borderColor, bgColor, objective, tone;
+
+          if (score >= 91) {
+            // 91-100%
+            category = "Green (Excellent)";
+            color = "#10b981"; // emerald-500
+            icon = "verified";
+            borderColor = "rgba(16, 185, 129, 0.2)";
+            bgColor = "rgba(16, 185, 129, 0.1)";
+            objective = "Remind, resolve, protect relationship";
+            tone = "Soft, supportive";
+          } else if (score >= 31) {
+            // 31-90%
+            category = "Yellow (Average)";
+            color = "#f59e0b"; // amber-500
+            icon = "rule";
+            borderColor = "rgba(245, 158, 11, 0.2)";
+            bgColor = "rgba(245, 158, 11, 0.1)";
+            objective = "Secure commitment & prevent roll-forward";
+            tone = "Firm but respectful";
+          } else {
+            // 0-30%
+            category = "Red (Needs Improvement)";
+            color = "#ef4444"; // rose-500
+            icon = "error_outline";
+            borderColor = "rgba(239, 68, 68, 0.2)";
+            bgColor = "rgba(239, 68, 68, 0.1)";
+            objective = "Recover or prepare for escalation";
+            tone = "Professional, factual";
+          }
+
+          // Update popup content
+          individualAgentTitle.textContent = `${agentName} - Evaluation`;
+          individualAgentSubtitle.textContent = `Score: ${score}% • ${category}`;
+          individualAgentName.textContent = agentName;
+          individualAgentFile.textContent = `File: ${filename}`;
+          individualAgentScore.textContent = `${score}%`;
+          individualAgentScore.style.color = color;
+          individualAgentCategory.textContent = category;
+          individualAgentCategory.style.color = color;
+          individualAgentObjective.innerHTML = `<strong>Objective:</strong> ${objective}`;
+          individualAgentTone.innerHTML = `<strong>Tone:</strong> ${tone}`;
+
+          // Update icon and styling
+          individualAgentIcon.innerHTML = `<span class="material-symbols-outlined text-lg">${icon}</span>`;
+          individualAgentIcon.style.backgroundColor = color;
+
+          // Update popup border and background
+          popup.style.borderColor = borderColor;
+          popup.querySelector(".glass-popup").style.backgroundColor =
+            document.documentElement.classList.contains("dark")
+              ? `${color}10`
+              : `${color}15`;
+
+          // Update progress bars with random scores based on overall score
+          const commScore = Math.min(100, score + Math.random() * 10 - 5);
+          const problemScore = Math.min(100, score + Math.random() * 8 - 4);
+          const paymentScore = Math.min(100, score + Math.random() * 12 - 6);
+          const closureScore = Math.min(100, score + Math.random() * 6 - 3);
+
+          document.getElementById("comm-score").textContent =
+            `${Math.round(commScore)}%`;
+          document.getElementById("problem-score").textContent =
+            `${Math.round(problemScore)}%`;
+          document.getElementById("payment-score").textContent =
+            `${Math.round(paymentScore)}%`;
+          document.getElementById("closure-score").textContent =
+            `${Math.round(closureScore)}%`;
+
+          document.getElementById("comm-bar").style.width = `${commScore}%`;
+          document.getElementById("comm-bar").style.backgroundColor = color;
+          document.getElementById("problem-bar").style.width =
+            `${problemScore}%`;
+          document.getElementById("problem-bar").style.backgroundColor = color;
+          document.getElementById("payment-bar").style.width =
+            `${paymentScore}%`;
+          document.getElementById("payment-bar").style.backgroundColor = color;
+          document.getElementById("closure-bar").style.width =
+            `${closureScore}%`;
+          document.getElementById("closure-bar").style.backgroundColor = color;
+
+          // Calculate weighted average
+          const weightedAvg = Math.round(
+            commScore * 0.4 +
+              problemScore * 0.25 +
+              paymentScore * 0.25 +
+              closureScore * 0.1,
+          );
+          document.getElementById("total-score").textContent =
+            `${weightedAvg}%`;
+          document.getElementById("total-score").style.color = color;
+
+          // Update note based on score
+          individualAgentNote.innerHTML = "";
+          individualAgentNote.style.borderColor = borderColor;
+          individualAgentNote.style.backgroundColor = bgColor;
+
+          if (score >= 91) {
+            individualAgentNote.innerHTML = `
+              <p class="text-xs font-medium" style="color: ${color}">
+                ✅ Excellent performance! Agent shows strong communication skills and problem-solving ability.
+              </p>
+            `;
+          } else if (score >= 31) {
+            individualAgentNote.innerHTML = `
+              <p class="text-xs font-medium" style="color: ${color}">
+                ⚠️ Moderate performance. Consider targeted coaching on specific areas for improvement.
+              </p>
+            `;
+          } else {
+            individualAgentNote.innerHTML = `
+              <p class="text-xs font-medium" style="color: ${color}">
+                ❌ Requires immediate coaching intervention. Schedule one-on-one training session.
+              </p>
+            `;
+          }
+
+          // Position popup
+          let top =
+            elementRect.top + elementRect.height / 2 - popup.offsetHeight / 2;
+          let left = elementRect.right + 20;
+
+          // Adjust if too close to right edge
+          if (left + popup.offsetWidth > window.innerWidth) {
+            left = elementRect.left - popup.offsetWidth - 20;
+          }
+
+          // Ensure popup stays within viewport bounds
+          top = Math.max(
+            20,
+            Math.min(top, window.innerHeight - popup.offsetHeight - 20),
+          );
+
+          popup.style.top = `${top}px`;
+          popup.style.left = `${left}px`;
+          popup.classList.add("visible");
+
+          // Clear any existing timeout
+          if (popupTimeout) {
+            clearTimeout(popupTimeout);
+          }
+        }
+
+        function hideIndividualAgentPopup() {
+          individualAgentPopup.classList.remove("visible");
+        }
+
+        // Agent evaluation popup functions
+        function showAgentPopup(cardId, popupId, position) {
+          if (currentAgentPopup) {
+            currentAgentPopup.classList.remove("visible");
+          }
+
+          const popup = document.getElementById(popupId);
+          if (!popup) return;
+
+          const card = document.getElementById(cardId);
+          if (!card) return;
+
+          const cardRect = card.getBoundingClientRect();
+
+          // Calculate position relative to viewport, not document
+          let top = cardRect.top + cardRect.height / 2 - popup.offsetHeight / 2;
+          let left = cardRect.right + 20;
+
+          // Adjust if too close to right edge
+          if (left + popup.offsetWidth > window.innerWidth) {
+            left = cardRect.left - popup.offsetWidth - 20;
+          }
+
+          // Ensure popup stays within viewport bounds
+          top = Math.max(
+            20,
+            Math.min(top, window.innerHeight - popup.offsetHeight - 20),
+          );
+
+          popup.style.top = `${top}px`;
+          popup.style.left = `${left}px`;
+          popup.classList.add("visible");
+          currentAgentPopup = popup;
+
+          // Clear any existing timeout
+          if (popupTimeout) {
+            clearTimeout(popupTimeout);
+          }
+        }
+
+        function hideAgentPopup() {
+          if (currentAgentPopup) {
+            currentAgentPopup.classList.remove("visible");
+            currentAgentPopup = null;
+          }
+        }
+
+        function hideAgentPopupDelayed() {
+          popupTimeout = setTimeout(() => {
+            hideAgentPopup();
+          }, 300);
+        }
+
+        // Setup agent card hover events
+        function setupAgentCardHover(cardId, popupId) {
+          const card = document.getElementById(cardId);
+          const popup = document.getElementById(popupId);
+
+          if (!card || !popup) return;
+
+          card.addEventListener("mouseenter", () => {
+            if (popupTimeout) {
+              clearTimeout(popupTimeout);
+            }
+            showAgentPopup(cardId, popupId);
+          });
+
+          card.addEventListener("mouseleave", () => {
+            popup.addEventListener("mouseenter", () => {
+              if (popupTimeout) {
+                clearTimeout(popupTimeout);
+              }
+            });
+
+            popup.addEventListener("mouseleave", () => {
+              hideAgentPopupDelayed();
+            });
+
+            hideAgentPopupDelayed();
+          });
+
+          // Also handle popup hover
+          popup.addEventListener("mouseenter", () => {
+            if (popupTimeout) {
+              clearTimeout(popupTimeout);
+            }
+          });
+
+          popup.addEventListener("mouseleave", () => {
+            hideAgentPopupDelayed();
+          });
+        }
+
+        // Initialize agent card hover effects
+        if (greenAgentsCard && greenAgentsPopup) {
+          setupAgentCardHover("green-agents-card", "green-agents-popup");
+        }
+
+        if (yellowAgentsCard && yellowAgentsPopup) {
+          setupAgentCardHover("yellow-agents-card", "yellow-agents-popup");
+        }
+
+        if (redAgentsCard && redAgentsPopup) {
+          setupAgentCardHover("red-agents-card", "red-agents-popup");
+        }
+
+        // Page navigation
+        function navigateToPage(page) {
+          // Update current page
+          currentPage = page;
+
+          // Hide all pages
+          pages.forEach((p) => {
+            p.classList.remove("active");
+          });
+
+          // Show selected page
+          const targetPage = document.getElementById(`page-${page}`);
+          if (targetPage) {
+            targetPage.classList.add("active");
+          }
+
+          // Update header
+          updateHeader(page);
+
+          // Update active nav button
+          navButtons.forEach((btn) => {
+            if (btn.getAttribute("data-page") === page) {
+              btn.classList.add(
+                "bg-primary/10",
+                "text-primary",
+                "border",
+                "border-primary/20",
+              );
+              btn.classList.remove(
+                "text-slate-400",
+                "hover:text-navy-text",
+                "dark:hover:text-white",
+                "hover:bg-black/5",
+                "dark:hover:bg-white/5",
+              );
+            } else {
+              btn.classList.remove(
+                "bg-primary/10",
+                "text-primary",
+                "border",
+                "border-primary/20",
+              );
+              btn.classList.add(
+                "text-slate-400",
+                "hover:text-navy-text",
+                "dark:hover:text-white",
+                "hover:bg-black/5",
+                "dark:hover:bg-white/5",
+              );
+            }
+          });
+
+          // Show/hide upload bottom bar
+          if (page === "upload") {
+            uploadBottomBar.classList.remove("hidden");
+          } else {
+            uploadBottomBar.classList.add("hidden");
+          }
+
+          // Hide any open agent popups when navigating away from dashboard
+          if (page !== "dashboard") {
+            hideAgentPopup();
+            hideIndividualAgentPopup();
+          }
+        }
+
+        // Update header based on page
+        function updateHeader(page) {
+          const pageInfo = {
+            dashboard: {
+              breadcrumb: "Lead & Quality Intelligence",
+              title: "Performance Dashboard",
+            },
+            upload: {
+              breadcrumb: "File Upload Center",
+              title: "Upload Audio Assets",
+            },
+            reports: {
+              breadcrumb: "Transcription Analysis",
+              title: "Analysis Reports",
+            },
+            settings: {
+              breadcrumb: "System Configuration",
+              title: "Settings",
+            },
+          };
+
+          if (pageInfo[page]) {
+            pageBreadcrumb.textContent = pageInfo[page].breadcrumb;
+            pageTitle.textContent = pageInfo[page].title;
+          }
+        }
+
+        // Theme toggle
+        themeToggleBtn.addEventListener("click", function () {
+          if (document.documentElement.classList.contains("dark")) {
+            document.documentElement.classList.remove("dark");
+            document.documentElement.classList.add("light");
+          } else {
+            document.documentElement.classList.remove("light");
+            document.documentElement.classList.add("dark");
+          }
+        });
+
+        // Nav button click handlers
+        navButtons.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const page = this.getAttribute("data-page");
+            navigateToPage(page);
+          });
+        });
+
+        // Search input
+        searchInput.addEventListener("input", function () {
+          const searchTerm = this.value.toLowerCase();
+          console.log("Searching for:", searchTerm);
+        });
+
+        // Sidebar upload button
+        sidebarUploadBtn.addEventListener("click", function () {
+          navigateToPage("upload");
+        });
+
+        // Upload page functionality
+        function initializeSingleUpload() {
+          uploadIsSingleUpload = true;
+          fileInput.removeAttribute("multiple");
+          singleUploadBtn.classList.add(
+            "bg-white",
+            "dark:bg-white/10",
+            "shadow-sm",
+            "text-primary",
+          );
+          singleUploadBtn.classList.remove(
+            "text-slate-500",
+            "hover:text-navy-text",
+            "dark:hover:text-white",
+          );
+          bulkUploadBtn.classList.remove(
+            "bg-white",
+            "dark:bg-white/10",
+            "shadow-sm",
+            "text-primary",
+          );
+          bulkUploadBtn.classList.add(
+            "text-slate-500",
+            "hover:text-navy-text",
+            "dark:hover:text-white",
+          );
+        }
+
+        function initializeBulkUpload() {
+          uploadIsSingleUpload = false;
+          fileInput.setAttribute("multiple", "multiple");
+          bulkUploadBtn.classList.add(
+            "bg-white",
+            "dark:bg-white/10",
+            "shadow-sm",
+            "text-primary",
+          );
+          bulkUploadBtn.classList.remove(
+            "text-slate-500",
+            "hover:text-navy-text",
+            "dark:hover:text-white",
+          );
+          singleUploadBtn.classList.remove(
+            "bg-white",
+            "dark:bg-white/10",
+            "shadow-sm",
+            "text-primary",
+          );
+          singleUploadBtn.classList.add(
+            "text-slate-500",
+            "hover:text-navy-text",
+            "dark:hover:text-white",
+          );
+        }
+
+        function formatFileSize(bytes) {
+          if (bytes === 0) return "0 Bytes";
+          const k = 1024;
+          const sizes = ["Bytes", "KB", "MB", "GB"];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return (
+            parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+          );
+        }
+
+        function addFileToQueue(file) {
+          if (uploadIsSingleUpload && uploadFiles.length > 0) {
+            alert(
+              "Single upload mode: Only one file allowed. Clear existing files first.",
+            );
+            return;
+          }
+
+          const maxSize = 256 * 1024 * 1024;
+          if (file.size > maxSize) {
+            alert(`File ${file.name} exceeds 256MB limit`);
+            return;
+          }
+
+          uploadFiles.push(file);
+          uploadTotalSize += file.size;
+
+          const fileItem = document.createElement("div");
+          fileItem.className =
+            "file-item bg-slate-50 dark:bg-white/5 rounded-xl p-4 flex items-center justify-between";
+          fileItem.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined">audio_file</span>
+              </div>
+              <div>
+                <p class="text-sm font-medium dark:text-white text-navy-text truncate max-w-xs">${
+                  file.name
+                }</p>
+                <p class="text-xs text-slate-500">${formatFileSize(
+                  file.size,
+                )}</p>
+              </div>
+            </div>
+            <button class="remove-file-btn size-8 flex items-center justify-center rounded-lg hover:bg-rose-500/10 hover:text-rose-500 transition-colors text-slate-400">
+              <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+          `;
+
+          fileItem
+            .querySelector(".remove-file-btn")
+            .addEventListener("click", function () {
+              const index = uploadFiles.indexOf(file);
+              if (index > -1) {
+                uploadTotalSize -= uploadFiles[index].size;
+                uploadFiles.splice(index, 1);
+                fileItem.remove();
+                updateUploadUI();
+              }
+            });
+
+          fileQueue.appendChild(fileItem);
+          updateUploadUI();
+        }
+
+        function updateUploadUI() {
+          fileCountEl.textContent = uploadFiles.length;
+          selectedCountEl.textContent = uploadFiles.length;
+          totalSizeEl.textContent = (uploadTotalSize / (1024 * 1024)).toFixed(
+            1,
+          );
+
+          const processingTimeEl = document.querySelector(
+            ".grid.grid-cols-1.md\\:grid-cols-3.gap-6 div:first-child p:last-child",
+          );
+          if (processingTimeEl) {
+            const baseTime = 2 * 60 + 40;
+            const additionalTime = uploadFiles.length * 10;
+            const totalSeconds = baseTime + additionalTime;
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            processingTimeEl.textContent = `~ ${minutes} min ${seconds} sec`;
+          }
+        }
+
+        function handleFileSelect(files) {
+          if (uploadIsSingleUpload && files.length > 1) {
+            alert("Single upload mode: Please select only one file");
+            return;
+          }
+
+          files.forEach((file) => addFileToQueue(file));
+          uploadZone.classList.add("active");
+          setTimeout(() => uploadZone.classList.remove("active"), 1000);
+        }
+
+        function clearAllFiles() {
+          if (uploadFiles.length === 0) return;
+
+          if (confirm("Are you sure you want to clear all files?")) {
+            uploadFiles = [];
+            uploadTotalSize = 0;
+            fileQueue.innerHTML = "";
+            updateUploadUI();
+          }
+        }
+
+        function processFiles() {
+          if (uploadFiles.length === 0) {
+            alert("Please select files to upload first");
+            return;
+          }
+
+          const originalText = processBtn.innerHTML;
+          processBtn.innerHTML = `<span class="material-symbols-outlined animate-spin">refresh</span> Processing...`;
+          processBtn.disabled = true;
+
+          setTimeout(() => {
+            alert(`Successfully uploaded ${uploadFiles.length} file(s)!`);
+            processBtn.innerHTML = originalText;
+            processBtn.disabled = false;
+            uploadFiles = [];
+            uploadTotalSize = 0;
+            fileQueue.innerHTML = "";
+            updateUploadUI();
+            navigateToPage("dashboard");
+          }, 2000);
+        }
+
+        function cancelUpload() {
+          if (uploadFiles.length > 0) {
+            if (
+              confirm(
+                "Are you sure you want to cancel? All selected files will be removed.",
+              )
+            ) {
+              uploadFiles = [];
+              uploadTotalSize = 0;
+              fileQueue.innerHTML = "";
+              updateUploadUI();
+            }
+          } else {
+            navigateToPage("dashboard");
+          }
+        }
+
+        // Upload page event listeners
+        singleUploadBtn.addEventListener("click", initializeSingleUpload);
+        bulkUploadBtn.addEventListener("click", initializeBulkUpload);
+        browseBtn.addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", function (e) {
+          if (e.target.files.length > 0) {
+            handleFileSelect(Array.from(e.target.files));
+            fileInput.value = "";
+          }
+        });
+        clearAllBtn.addEventListener("click", clearAllFiles);
+        cancelBtn.addEventListener("click", cancelUpload);
+        processBtn.addEventListener("click", processFiles);
+
+        // Drag and drop for upload
+        ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+          uploadZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        ["dragenter", "dragover"].forEach((eventName) => {
+          uploadZone.addEventListener(eventName, highlight, false);
+        });
+
+        ["dragleave", "drop"].forEach((eventName) => {
+          uploadZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+          uploadZone.classList.add("active");
+        }
+
+        function unhighlight() {
+          uploadZone.classList.remove("active");
+        }
+
+        uploadZone.addEventListener("drop", function (e) {
+          const dt = e.dataTransfer;
+          const droppedFiles = dt.files;
+          handleFileSelect(Array.from(droppedFiles));
+        });
+
+        // Reports page functionality (popups)
+        function openAudioPopup(filename, duration) {
+          audioTitle.textContent = `Audio Playback Analysis`;
+          audioSubtitle.textContent = `${filename} • ${duration} duration`;
+
+          const [minutes, seconds] = duration.split(":").map(Number);
+          totalTime = minutes * 60 + seconds;
+          totalTimeEl.textContent = duration;
+          currentTime = 0;
+          currentTimeEl.textContent = "00:00";
+
+          if (filename.includes("20914")) {
+            audioInsight.textContent =
+              '"Agent maintained professional tone throughout. Customer confirmed willingness to pay on scheduled date."';
+          } else if (filename.includes("20915")) {
+            audioInsight.textContent =
+              '"Customer requested callback due to being busy. Agent followed protocol correctly and scheduled follow-up."';
+          } else {
+            audioInsight.textContent =
+              '"Call disconnected early. Agent identified wrong number quickly and ended call professionally."';
+          }
+
+          generateWaveform();
+          showPopup(audioPopup);
+        }
+
+        function openChatPopup(filename) {
+          chatFilename.textContent = filename;
+          showPopup(chatPopup);
+        }
+
+        function openSummaryPopup(filename) {
+          summaryFilename.textContent = filename;
+
+          if (filename.includes("20914")) {
+            summaryText.textContent =
+              "The customer called to discuss a late payment. Agent handled the objection effectively using the standard script. A promise to pay was secured for Oct 28. Sentiment shifted from negative to positive by the end of the call.";
+          } else if (filename.includes("20915")) {
+            summaryText.textContent =
+              "Customer was unavailable to speak at length. Agent efficiently scheduled a callback for Oct 26 at 10:00 AM. Professional tone maintained throughout with clear communication of next steps.";
+          } else {
+            summaryText.textContent =
+              "Wrong number reached. Agent quickly verified contact information and ended the call efficiently. No follow-up required. Processing time was minimal.";
+          }
+
+          showPopup(summaryPopup);
+        }
+
+        function showPopup(popup) {
+          [audioPopup, chatPopup, summaryPopup].forEach((p) => {
+            p.classList.add("pointer-events-none", "opacity-0");
+            p.querySelector(".glass-popup").classList.remove("scale-100");
+            p.querySelector(".glass-popup").classList.add("scale-95");
+          });
+
+          popup.classList.remove("pointer-events-none", "opacity-0");
+          popup.classList.add("pointer-events-auto", "opacity-100");
+          popup.querySelector(".glass-popup").classList.remove("scale-95");
+          popup.querySelector(".glass-popup").classList.add("scale-100");
+        }
+
+        function closePopup(popup) {
+          popup.classList.add("pointer-events-none", "opacity-0");
+          popup.classList.remove("pointer-events-auto", "opacity-100");
+          popup.querySelector(".glass-popup").classList.remove("scale-100");
+          popup.querySelector(".glass-popup").classList.add("scale-95");
+
+          if (popup === audioPopup) {
+            stopAudio();
+          }
+        }
+
+        function generateWaveform() {
+          waveformContainer.innerHTML = "";
+          const barCount = 45;
+
+          for (let i = 0; i < barCount; i++) {
+            const bar = document.createElement("div");
+            const height = Math.random() * 60 + 10;
+            bar.className = `waveform-bar ${i < 12 ? "active" : ""}`;
+            bar.style.height = `${height}px`;
+            bar.style.transitionDelay = `${i * 20}ms`;
+            waveformContainer.appendChild(bar);
+          }
+        }
+
+        // Audio player controls
+        playPauseBtn.addEventListener("click", function () {
+          isPlaying = !isPlaying;
+
+          if (isPlaying) {
+            playPauseIcon.textContent = "pause";
+            startWaveformAnimation();
+            startTimeProgress();
+          } else {
+            playPauseIcon.textContent = "play_arrow";
+            stopWaveformAnimation();
+            stopTimeProgress();
+          }
+        });
+
+        function startWaveformAnimation() {
+          clearInterval(waveformInterval);
+          const bars = waveformContainer.querySelectorAll(".waveform-bar");
+
+          waveformInterval = setInterval(() => {
+            bars.forEach((bar, index) => {
+              const isActive = Math.random() > 0.3;
+              if (isActive) {
+                bar.classList.add("active");
+                const newHeight = Math.random() * 60 + 10;
+                bar.style.height = `${newHeight}px`;
+              } else {
+                bar.classList.remove("active");
+              }
+            });
+          }, 200);
+        }
+
+        function stopWaveformAnimation() {
+          clearInterval(waveformInterval);
+          const bars = waveformContainer.querySelectorAll(".waveform-bar");
+          bars.forEach((bar) => bar.classList.remove("active"));
+        }
+
+        function startTimeProgress() {
+          const timeInterval = setInterval(() => {
+            if (!isPlaying) {
+              clearInterval(timeInterval);
+              return;
+            }
+
+            if (currentTime < totalTime) {
+              currentTime += currentSpeed;
+              updateTimeDisplay();
+            } else {
+              currentTime = totalTime;
+              updateTimeDisplay();
+              isPlaying = false;
+              playPauseIcon.textContent = "play_arrow";
+              clearInterval(timeInterval);
+              stopWaveformAnimation();
+            }
+          }, 1000);
+        }
+
+        function updateTimeDisplay() {
+          const minutes = Math.floor(currentTime / 60);
+          const seconds = Math.floor(currentTime % 60);
+          currentTimeEl.textContent = `${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+          const bars = waveformContainer.querySelectorAll(".waveform-bar");
+          const activeCount = Math.floor(
+            (currentTime / totalTime) * bars.length,
+          );
+
+          bars.forEach((bar, index) => {
+            if (index < activeCount) {
+              bar.classList.add("active");
+            } else {
+              bar.classList.remove("active");
+            }
+          });
+        }
+
+        function stopAudio() {
+          isPlaying = false;
+          playPauseIcon.textContent = "play_arrow";
+          stopWaveformAnimation();
+          currentTime = 0;
+          updateTimeDisplay();
+        }
+
+        // Reports page event listeners
+        document.querySelectorAll(".audio-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const filename = this.getAttribute("data-filename");
+            const duration = this.getAttribute("data-duration");
+            openAudioPopup(filename, duration);
+          });
+        });
+
+        document.querySelectorAll(".chat-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const filename = this.getAttribute("data-filename");
+            openChatPopup(filename);
+          });
+        });
+
+        document.querySelectorAll(".summary-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const filename = this.getAttribute("data-filename");
+            openSummaryPopup(filename);
+          });
+        });
+
+        // Individual score click events
+        document
+          .querySelectorAll(".individual-score")
+          .forEach((scoreElement) => {
+            scoreElement.addEventListener("click", function (e) {
+              e.stopPropagation();
+              const score = parseInt(this.getAttribute("data-score"));
+              const agentName = this.getAttribute("data-agent");
+              const filename = this.getAttribute("data-filename");
+
+              // Hide any other open popups
+              hideAgentPopup();
+              hideIndividualAgentPopup();
+
+              // Show individual agent popup
+              showIndividualAgentPopup(this, score, agentName, filename);
+            });
+          });
+
+        // Speed controls
+        document.querySelectorAll(".speed-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            document.querySelectorAll(".speed-btn").forEach((b) => {
+              b.classList.remove(
+                "bg-white",
+                "dark:bg-white/10",
+                "shadow-sm",
+                "text-primary",
+              );
+              b.classList.add("text-slate-500", "hover:text-primary");
+            });
+
+            this.classList.add(
+              "bg-white",
+              "dark:bg-white/10",
+              "shadow-sm",
+              "text-primary",
+            );
+            this.classList.remove("text-slate-500", "hover:text-primary");
+
+            currentSpeed = parseFloat(this.getAttribute("data-speed"));
+          });
+        });
+
+        // Volume control
+        if (volumeBar && volumeBar.parentElement) {
+          volumeBar.parentElement.addEventListener("click", function (e) {
+            const rect = this.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            volume = clickX / width;
+            volume = Math.max(0, Math.min(1, volume));
+            volumeBar.style.width = `${volume * 100}%`;
+          });
+        }
+
+        // Close buttons
+        closeAudioBtn.addEventListener("click", () => closePopup(audioPopup));
+        closeChatBtn.addEventListener("click", () => closePopup(chatPopup));
+        closeSummaryBtn.addEventListener("click", () =>
+          closePopup(summaryPopup),
+        );
+        closeSummaryBtn2.addEventListener("click", () =>
+          closePopup(summaryPopup),
+        );
+
+        // Close popups with Escape key
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            if (!audioPopup.classList.contains("pointer-events-none")) {
+              closePopup(audioPopup);
+            } else if (!chatPopup.classList.contains("pointer-events-none")) {
+              closePopup(chatPopup);
+            } else if (
+              !summaryPopup.classList.contains("pointer-events-none")
+            ) {
+              closePopup(summaryPopup);
+            }
+            // Also close agent evaluation popups
+            hideAgentPopup();
+            hideIndividualAgentPopup();
+          }
+
+          if (
+            e.key === " " &&
+            !audioPopup.classList.contains("pointer-events-none")
+          ) {
+            e.preventDefault();
+            playPauseBtn.click();
+          }
+        });
+
+        // Click outside to close individual agent popup
+        document.addEventListener("click", function (e) {
+          if (
+            !individualAgentPopup.contains(e.target) &&
+            !e.target.classList.contains("individual-score") &&
+            !e.target.closest(".individual-score")
+          ) {
+            hideIndividualAgentPopup();
+          }
+
+          // Close other agent popups
+          if (
+            !greenAgentsPopup.contains(e.target) &&
+            !yellowAgentsPopup.contains(e.target) &&
+            !redAgentsPopup.contains(e.target) &&
+            !e.target.closest("#green-agents-card") &&
+            !e.target.closest("#yellow-agents-card") &&
+            !e.target.closest("#red-agents-card")
+          ) {
+            hideAgentPopup();
+          }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener("keydown", function (e) {
+          // Ctrl/Cmd + U for upload
+          if ((e.ctrlKey || e.metaKey) && e.key === "u") {
+            e.preventDefault();
+            navigateToPage("upload");
+          }
+
+          // Ctrl/Cmd + D for dashboard
+          if ((e.ctrlKey || e.metaKey) && e.key === "d") {
+            e.preventDefault();
+            navigateToPage("dashboard");
+          }
+
+          // Ctrl/Cmd + R for reports
+          if ((e.ctrlKey || e.metaKey) && e.key === "r") {
+            e.preventDefault();
+            navigateToPage("reports");
+          }
+        });
+
+        // Initialize
+        navigateToPage("dashboard");
+        initializeSingleUpload();
+        updateUploadUI();
+        generateWaveform();
+        updateTimeDisplay();
+
+        // Make hideAgentPopup available globally for onclick attributes
+        window.hideAgentPopup = hideAgentPopup;
+        window.hideIndividualAgentPopup = hideIndividualAgentPopup;
+      });
+    </script>
+  </body>
+</html>
