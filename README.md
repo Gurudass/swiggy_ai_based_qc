@@ -1,57 +1,60 @@
-<h1 align="center">🚀 Swiggy AI-Based Quality Control (QC) Engine</h1>
+# Swiggy AI Quality Control (QC) Engine
 
-<p align="center">
-  <b>Automated Enterprise Call Analytics, Disposition & QA with Generative AI</b>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python" />
-  <img src="https://img.shields.io/badge/FastAPI-Framework-teal?style=for-the-badge&logo=fastapi" />
-  <img src="https://img.shields.io/badge/OpenAI_%2F_LLM-Integrated-purple?style=for-the-badge&logo=openai" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
-</p>
+**Enterprise Speech Analytics, Automated Dispositions, and LLM-Driven Quality Assurance**
 
 ---
 
-## 📌 Overview
-An enterprise-grade automated Quality Control (QC) pipeline engineered to evaluate 50K–100K daily customer interaction records. Designed to reduce manual QA overhead by 70–80%, extracting structured insights, customer sentiments, intent analysis, and objection tracking with sub-second processing throughput.
+### Overview
+An automated quality-control and speech-analytics platform built to evaluate 50,000–100,000 daily customer interactions. Developed to replace manual QA overhead by 70–80%, extracting structured disposition insights, sentiment analysis, customer intent classification, and objection detection with sub-second latency.
 
-## ✨ Key Features
-- **Automated Disposition & Sentiment Tagging:** Leverages structured LLM prompts for multi-class classification and sentiment profiling.
-- **RAG & Guardrail Verification:** Assesses policy compliance and minimizes hallucination on customer credit card offers.
-- **Real-Time Analytics Dashboard:** Aggregates intent distributions, objection trends, and agent performance metrics.
-- **Multi-channel Triggering:** Integrated with Meta WhatsApp Cloud API for automated post-call customer communications.
+---
 
-## 🛠️ Architecture & Tech Stack
-- **Backend:** Python, FastAPI, WebSockets
-- **AI/ML:** Whisper (Speech-to-Text), LLM Inference (vLLM / Sarvam-M / OpenAI), Silero VAD
-- **Storage:** MySQL / SQLite, Redis Caching
-- **DevOps:** Docker, AWS EC2 / S3
+### Key Capabilities
 
-## ⚡ Quick Start
+* **Automated Disposition & Intent Profiling:** Uses structured LLM prompt pipelines to classify multi-class customer dispositions and sentiment metrics.
+* **RAG & Guardrail Compliance:** Ensures policy compliance and eliminates hallucinations on Swiggy credit card offer data via targeted context retrieval.
+* **Operational Analytics:** Real-time metrics tracking objection types, campaign reach, and agent handover quality.
+* **Automated Multi-Channel Follow-ups:** Event-driven integration with Meta WhatsApp Cloud API for instantaneous post-interaction confirmation.
 
-### 1. Clone the repository
+---
+
+### Architecture & Technical Stack
+
+* **Backend Services:** Python, FastAPI, WebSockets, REST APIs
+* **Speech & AI Engine:** Whisper (STT), Silero VAD, vLLM / Sarvam-M, OpenAI API
+* **Data Storage & Caching:** MySQL, SQLite, Redis
+* **Infrastructure:** Docker, AWS EC2, S3, Linux
+
+---
+
+### Getting Started
+
+#### Prerequisites
+* Python 3.10+
+* Virtual environment tool (`venv` or `conda`)
+
+#### 1. Clone the repository
 ```bash
 git clone https://github.com/Gurudass/swiggy_ai_based_qc.git
 cd swiggy_ai_based_qc
 ```
 
-### 2. Set up virtual environment
+#### 2. Environment Setup
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+source venv/bin/activate  # Windows: .\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Environment Variables
-Create a `.env` file in the root folder:
+#### 3. Configuration
+Create a `.env` file in the root directory:
 ```env
-OPENAI_API_KEY=your_key_here
-DATABASE_URL=sqlite:///./qc_database.db
+OPENAI_API_KEY=your_api_key
+DATABASE_URL=sqlite:///./qc_engine.db
 PORT=8000
 ```
 
-### 4. Run the API
+#### 4. Launch the Application
 ```bash
 uvicorn main:app --reload --port 8000
 ```
@@ -59,8 +62,7 @@ Interactive API documentation will be available at `http://localhost:8000/docs`.
 
 ---
 
-## 👨‍💻 Author
+### Author
 **Guru Das**  
-Senior Full-Stack & GenAI Engineer  
-- GitHub: [@Gurudass](https://github.com/Gurudass)  
-- LinkedIn: [Guru Das](https://linkedin.com)
+Senior Full-Stack & Generative AI Engineer  
+[GitHub Profile](https://github.com/Gurudass)
